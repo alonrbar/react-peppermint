@@ -80,6 +80,7 @@ class App extends React.Component<AppProps> {   // Note: You don't even need to
     }
 }
 
+// notice the use of the 'withViewModel' HOC here
 export const AppWithViewModel = withViewModel(AppVm)(App);
 ```
 
