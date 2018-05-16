@@ -2,6 +2,9 @@
 
 Keep your view fresh 🌿 with React Peppermint - a light weight view-model library for React and TypeScript.
 
+**Notice: This library is still in it's _alpha version_.**  
+**New version are coming in the next weeks, stay tuned :)**
+
 [Change Log](https://github.com/alonrbar/react-peppermint/blob/master/CHANGELOG.md)
 
 ## Installation
@@ -20,11 +23,11 @@ npm install --save react-peppermint
 
 ```javascript
 
-//
+// -------------------------
 // appVm.ts
 //
 // declare your view-model
-//
+// -------------------------
 
 import { refresh, viewModel } from 'react-peppermint';
 
@@ -45,20 +48,26 @@ class AppVm {
     }
 }
 
-//
+
+// -------------------------
 // App.tsx
 //
-// connect it to React components
-//
+// connect the view-model to a React component
+// -------------------------
+
+import * as React from 'react';
+import { withViewModel } from 'react-peppermint';
+import { AppVm } from './appVm';
 
 export interface AppProps {
     someValue: string;
     updateValue: (val: string) => void;
 }
 
-class App extends React.PureComponent<AppProps> { // note: you don't even need to
-                                                  // declare the props, you can use
-                                                  // AppVm directly if you wish
+class App extends React.Component<AppProps> {   // Note: You don't even need to
+                                                // declare the props, you can use
+                                                // AppVm as a type directly if 
+                                                // you want.
     public render() {
         return (
             <div>
@@ -80,11 +89,11 @@ To connect the view and the view-model we use React's new context API, much simi
 
 ```javascript
 
-//
+// -------------------------
 // resolver.js
 //
 // configure the container
-//
+// -------------------------
 
 import { IResolver } from 'react-peppermint';
 import { AppVm } from './appVm';
@@ -100,11 +109,12 @@ export const resolver: IResolver = {
     }
 };
 
-//
+
+// -------------------------
 // main.ts
 //
 // use a Provider in your application root
-//
+// -------------------------
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -118,3 +128,4 @@ ReactDOM.render(
     </Provider>,
     document.getElementById('application-root')
 );
+```
