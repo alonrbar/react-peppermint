@@ -1,4 +1,4 @@
-## [0.0.0 - 2018-05-16](https://github.com/alonrbar/react-peppermint)
+## [0.0.1 - 2018-05-16](https://github.com/alonrbar/react-peppermint)
 
 - Welcome react-peppermint!
 
