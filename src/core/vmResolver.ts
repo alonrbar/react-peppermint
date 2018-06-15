@@ -68,7 +68,7 @@ export class VmResolver implements IResolver {
                     // log
                     if (process.env.NODE_ENV === 'development') {
                         const totalTime = Date.now() - start;
-                        console.log(`[${vm.constructor.name}] ${methodName} - ${totalTime}ms`);
+                        console.log(`[${vm.constructor.name}] ${methodName} (in ${totalTime}ms)`);
                     }
 
                     // return original result

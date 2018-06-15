@@ -387,7 +387,7 @@ var vmResolver_VmResolver = (function () {
                     }
                     if (true) {
                         var totalTime = Date.now() - start;
-                        console.log("[" + vm.constructor.name + "] " + methodName + " - " + totalTime + "ms");
+                        console.log("[" + vm.constructor.name + "] " + methodName + " (in " + totalTime + "ms)");
                     }
                     return result;
                 };
