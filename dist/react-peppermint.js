@@ -98,9 +98,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ "./src/index.ts":
 /*!***********************************!*\
-  !*** ./src/index.ts + 14 modules ***!
+  !*** ./src/index.ts + 16 modules ***!
   \***********************************/
-/*! exports provided: fresh, veryFresh, viewModel, Provider, withViewModel */
+/*! exports provided: action, activate, broadcast, deactivate, viewModel, Provider, withViewModel */
 /*! ModuleConcatenation bailout: Cannot concat with external "react" (<- Module is not an ECMAScript module) */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -288,18 +288,32 @@ var viewModelInstanceInfo_ViewModelInstanceInfo = (function () {
 
 
 
-// CONCATENATED MODULE: ./src/decorators/fresh.ts
+// CONCATENATED MODULE: ./src/decorators/action.ts
 
-function fresh(target, propertyKey) {
+function action(target, propertyKey) {
     var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
     info.refresh[propertyKey] = true;
 }
 
-// CONCATENATED MODULE: ./src/decorators/veryFresh.ts
+// CONCATENATED MODULE: ./src/decorators/activate.ts
 
-function veryFresh(target, propertyKey) {
+function activate(target, propertyKey) {
+    var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
+    info.activate = propertyKey;
+}
+
+// CONCATENATED MODULE: ./src/decorators/broadcast.ts
+
+function broadcast(target, propertyKey) {
     var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
     info.refreshAll[propertyKey] = true;
+}
+
+// CONCATENATED MODULE: ./src/decorators/deactivate.ts
+
+function deactivate(target, propertyKey) {
+    var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
+    info.deactivate = propertyKey;
 }
 
 // CONCATENATED MODULE: ./src/decorators/viewModel.ts
@@ -309,6 +323,8 @@ function viewModel(ctor) {
 }
 
 // CONCATENATED MODULE: ./src/decorators/index.ts
+
+
 
 
 
@@ -442,6 +458,21 @@ var withViewModel = function (VmClass) { return function (Component) {
         function ComponentWithViewModel() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
+        ComponentWithViewModel.prototype.componentDidMount = function () {
+            if (!this.vm)
+                return;
+            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
+            var activateKey = vmInfo.activate;
+            if (activateKey) {
+                var activateMethod = this.vm[activateKey];
+                if (typeof activateMethod === 'function') {
+                    if (true) {
+                        console.log("[" + this.vm.constructor.name + "] activate");
+                    }
+                    activateMethod();
+                }
+            }
+        };
         ComponentWithViewModel.prototype.render = function () {
             var _this = this;
             return (external_react_["createElement"](Consumer, null, function (context) {
@@ -452,6 +483,16 @@ var withViewModel = function (VmClass) { return function (Component) {
         ComponentWithViewModel.prototype.componentWillUnmount = function () {
             var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
             vmInfo.refreshView.delete(this);
+            var deactivateKey = vmInfo.deactivate;
+            if (deactivateKey) {
+                var deactivateMethod = this.vm[deactivateKey];
+                if (typeof deactivateMethod === 'function') {
+                    if (true) {
+                        console.log("[" + this.vm.constructor.name + "] deactivate");
+                    }
+                    deactivateMethod();
+                }
+            }
         };
         ComponentWithViewModel.prototype.setVm = function (resolver) {
             if (this.vm)
@@ -472,8 +513,10 @@ var withViewModel = function (VmClass) { return function (Component) {
 
 
 // CONCATENATED MODULE: ./src/index.ts
-/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "fresh", function() { return fresh; });
-/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "veryFresh", function() { return veryFresh; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "action", function() { return action; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "activate", function() { return activate; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "broadcast", function() { return broadcast; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "deactivate", function() { return deactivate; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "viewModel", function() { return viewModel; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "Provider", function() { return Provider_Provider; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "withViewModel", function() { return withViewModel; });
