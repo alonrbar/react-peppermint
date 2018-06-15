@@ -32,7 +32,7 @@ export class VmResolver implements IResolver {
         // patch methods        
         const vmMethods = getMethods(vm);
         for (const methodName of Object.keys(vmMethods)) {
-            
+
             const originalMethod: Function = vm[methodName]; // tslint:disable-line:ban-types
 
             // patch actions
@@ -42,6 +42,12 @@ export class VmResolver implements IResolver {
             if (isAction || isBroadcast) {
                 const freshWrapper = function (this: any) {
 
+                    // measure time
+                    let start: number;
+                    if (process.env.NODE_ENV === 'development') {
+                        start = Date.now();
+                    }
+
                     // call the original method
                     const result = originalMethod.apply(this, arguments);
 
@@ -50,6 +56,12 @@ export class VmResolver implements IResolver {
                         vmInstanceInfo.refreshView.forEach(refresh => refresh());
                     } else if (isBroadcast) {
                         self.refreshAll();
+                    }
+
+                    // log
+                    if (process.env.NODE_ENV === 'development') {
+                        const totalTime = Date.now() - start;
+                        console.log(`[${vm.constructor.name}] ${methodName} - ${totalTime}ms`);
                     }
 
                     // return original result
