@@ -32,17 +32,15 @@ export class VmResolver implements IResolver {
         // patch methods        
         const vmMethods = getMethods(vm);
         for (const methodName of Object.keys(vmMethods)) {
-
-            // bind vm methods to itself
-            const originalMethod: Function = vm[methodName].bind(vm); // tslint:disable-line:ban-types
-            vm[methodName] = originalMethod;
+            
+            const originalMethod: Function = vm[methodName]; // tslint:disable-line:ban-types
 
             // patch actions
             const isAction = vmClassInfo.refresh[methodName];
             const isBroadcast = vmClassInfo.refreshAll[methodName];
 
-            if (isAction || isBroadcast) {                
-                vm[methodName] = function () {
+            if (isAction || isBroadcast) {
+                const freshWrapper = function (this: any) {
 
                     // call the original method
                     const result = originalMethod.apply(this, arguments);
@@ -57,6 +55,13 @@ export class VmResolver implements IResolver {
                     // return original result
                     return result;
                 };
+
+                // bind vm methods to itself
+                vm[methodName] = freshWrapper.bind(vm);
+            } else {
+
+                // bind vm methods to itself
+                vm[methodName] = originalMethod.bind(vm);
             }
         }
     }
