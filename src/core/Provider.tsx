@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { IResolver } from '../types';
-import { VmResolver } from '../viewModel';
 import { InternalProvider } from './reactContext';
+import { VmResolver } from './vmResolver';
 
 export interface ProviderProps {
     resolver: IResolver;

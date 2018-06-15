@@ -1,3 +1,3 @@
-export * from './refreshAll';
-export * from './refresh';
+export * from './fresh';
+export * from './veryFresh';
 export * from './viewModel';

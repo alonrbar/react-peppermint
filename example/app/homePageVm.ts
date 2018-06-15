@@ -1,4 +1,4 @@
-import { refresh, refreshAll, viewModel } from '../../src';
+import { fresh, veryFresh, viewModel } from '../../src';
 import { Router } from '../utils';
 
 @viewModel
@@ -8,12 +8,12 @@ export class HomePageVM {
 
     constructor(public readonly router: Router) { }
 
-    @refresh
+    @fresh
     public updateValue(val: string) {
         this.someValue = val;
     }    
 
-    @refreshAll
+    @veryFresh
     public refreshAll() {
         console.log('refreshing');
     }
