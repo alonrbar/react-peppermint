@@ -5,7 +5,7 @@ import { VmResolver } from './vmResolver';
 
 //
 // Here we wrap the actual React context provider with our own Provider class so
-// that we could execute custom logic upon 'render' calls.
+// that we could execute custom logic during 'render' calls.
 //
 
 export interface ProviderProps {
