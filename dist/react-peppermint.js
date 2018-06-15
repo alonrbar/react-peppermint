@@ -368,39 +368,41 @@ var vmResolver_VmResolver = (function () {
         vmInstanceInfo.deactivate = vmClassInfo.deactivate;
         defineProperties(vm, vm, [DescriptorType.Property]);
         var vmMethods = getMethods(vm);
-        var _loop_1 = function (methodName) {
-            var originalMethod = vm[methodName];
-            var isAction = vmClassInfo.refresh[methodName];
-            var isBroadcast = vmClassInfo.refreshAll[methodName];
-            if (isAction || isBroadcast) {
-                var freshWrapper = function () {
-                    var start;
-                    if (true) {
-                        start = Date.now();
-                    }
-                    var result = originalMethod.apply(this, arguments);
-                    if (isAction) {
-                        vmInstanceInfo.refreshView.forEach(function (refresh) { return refresh(); });
-                    }
-                    else if (isBroadcast) {
-                        self.refreshAll();
-                    }
-                    if (true) {
-                        var totalTime = Date.now() - start;
-                        console.log("[" + vm.constructor.name + "] " + methodName + " (in " + totalTime + "ms)");
-                    }
-                    return result;
-                };
-                vm[methodName] = freshWrapper.bind(vm);
-            }
-            else {
-                vm[methodName] = originalMethod.bind(vm);
-            }
-        };
         for (var _i = 0, _a = Object.keys(vmMethods); _i < _a.length; _i++) {
             var methodName = _a[_i];
-            _loop_1(methodName);
+            this.patchMethod(self, vm, vmClassInfo, vmInstanceInfo, methodName);
         }
+    };
+    VmResolver.prototype.patchMethod = function (resolver, vm, vmClassInfo, vmInstanceInfo, methodName) {
+        var originalMethod = vm[methodName];
+        var isAction = vmClassInfo.refresh[methodName];
+        var isBroadcast = vmClassInfo.refreshAll[methodName];
+        var finalMethod;
+        if (isAction || isBroadcast) {
+            var freshWrapper = function () {
+                var start;
+                if (true) {
+                    start = Date.now();
+                }
+                var result = originalMethod.apply(this, arguments);
+                if (isAction) {
+                    vmInstanceInfo.refreshView.forEach(function (refresh) { return refresh(); });
+                }
+                else if (isBroadcast) {
+                    resolver.refreshAll();
+                }
+                if (true) {
+                    var totalTime = Date.now() - start;
+                    console.log("[" + vm.constructor.name + "] " + methodName + " (in " + totalTime + "ms)");
+                }
+                return result;
+            };
+            finalMethod = freshWrapper;
+        }
+        else {
+            finalMethod = originalMethod;
+        }
+        vm[methodName] = finalMethod.bind(vm);
     };
     return VmResolver;
 }());

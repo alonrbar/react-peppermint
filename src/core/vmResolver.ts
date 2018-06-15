@@ -1,5 +1,5 @@
 import { ViewModelClassInfo, ViewModelInstanceInfo } from '../info';
-import { IResolver, RefreshCallback, ResolverKey } from '../types';
+import { IResolver, Method, RefreshCallback, ResolverKey } from '../types';
 import { defineProperties, DescriptorType, getMethods } from '../utils';
 
 export class VmResolver implements IResolver {
@@ -31,57 +31,75 @@ export class VmResolver implements IResolver {
         vmInstanceInfo.activate = vmClassInfo.activate;
         vmInstanceInfo.deactivate = vmClassInfo.deactivate;
 
-        // define properties directly on the vm instance (they currently exist
-        // on it's prototype) this way they will also be copied to withViewModel
-        // wrapped component (inside it's render method)
+        //
+        // define methods and properties directly on the vm instance (they
+        // currently exist on it's prototype) this way they will also be copied
+        // to withViewModel wrapped component (the copy operation happens inside
+        // it's render method)
+        //
+
+        // define properties "as is"
         defineProperties(vm, vm, [DescriptorType.Property]);
 
-        // patch methods        
+        // patch and define methods
         const vmMethods = getMethods(vm);
         for (const methodName of Object.keys(vmMethods)) {
+            this.patchMethod(self, vm, vmClassInfo, vmInstanceInfo, methodName);
+        }
+    }
 
-            const originalMethod: Function = vm[methodName]; // tslint:disable-line:ban-types
+    private patchMethod(
+        resolver: VmResolver,
+        vm: any,
+        vmClassInfo: ViewModelClassInfo,
+        vmInstanceInfo: ViewModelInstanceInfo,
+        methodName: string
+    ) {
+
+        const originalMethod: Method = vm[methodName];
+        const isAction = vmClassInfo.refresh[methodName];
+        const isBroadcast = vmClassInfo.refreshAll[methodName];
+
+        let finalMethod: Method;
+        if (isAction || isBroadcast) {
 
             // patch actions
-            const isAction = vmClassInfo.refresh[methodName];
-            const isBroadcast = vmClassInfo.refreshAll[methodName];
+            const freshWrapper = function (this: any) {
+                
+                // measure time
+                let start: number;
+                if (process.env.NODE_ENV === 'development') {
+                    start = Date.now();
+                }
 
-            if (isAction || isBroadcast) {
-                const freshWrapper = function (this: any) {
+                // call the original method
+                const result = originalMethod.apply(this, arguments);
 
-                    // measure time
-                    let start: number;
-                    if (process.env.NODE_ENV === 'development') {
-                        start = Date.now();
-                    }
+                // refresh views
+                if (isAction) {
+                    vmInstanceInfo.refreshView.forEach(refresh => refresh());
+                } else if (isBroadcast) {
+                    resolver.refreshAll();
+                }
 
-                    // call the original method
-                    const result = originalMethod.apply(this, arguments);
+                // log
+                if (process.env.NODE_ENV === 'development') {
+                    const totalTime = Date.now() - start;
+                    console.log(`[${vm.constructor.name}] ${methodName} (in ${totalTime}ms)`);
+                }
 
-                    // refresh views
-                    if (isAction) {
-                        vmInstanceInfo.refreshView.forEach(refresh => refresh());
-                    } else if (isBroadcast) {
-                        self.refreshAll();
-                    }
+                // return original result
+                return result;
+            };
 
-                    // log
-                    if (process.env.NODE_ENV === 'development') {
-                        const totalTime = Date.now() - start;
-                        console.log(`[${vm.constructor.name}] ${methodName} (in ${totalTime}ms)`);
-                    }
+            finalMethod = freshWrapper;
+        } else {
 
-                    // return original result
-                    return result;
-                };
-
-                // bind vm methods to itself
-                vm[methodName] = freshWrapper.bind(vm);
-            } else {
-
-                // bind vm methods to itself
-                vm[methodName] = originalMethod.bind(vm);
-            }
+            // keep other methods untouched
+            finalMethod = originalMethod;
         }
+
+        // bind vm methods to itself
+        vm[methodName] = finalMethod.bind(vm);
     }
 }
