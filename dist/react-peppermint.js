@@ -131,6 +131,14 @@ var DescriptorType;
     DescriptorType["Property"] = "Property";
     DescriptorType["Method"] = "Method";
 })(DescriptorType || (DescriptorType = {}));
+function defineProperties(target, source, descriptorTypes) {
+    var descriptors = getAllPropertyDescriptors(source, descriptorTypes);
+    for (var _i = 0, _a = Object.keys(descriptors); _i < _a.length; _i++) {
+        var key = _a[_i];
+        Object.defineProperty(target, key, descriptors[key]);
+    }
+    return target;
+}
 function getAllPropertyDescriptors(obj, descriptorTypes) {
     var result = {};
     while (obj.constructor !== Object) {
@@ -358,6 +366,7 @@ var vmResolver_VmResolver = (function () {
         var vmInstanceInfo = viewModelInstanceInfo_ViewModelInstanceInfo.initInfo(vm);
         vmInstanceInfo.activate = vmClassInfo.activate;
         vmInstanceInfo.deactivate = vmClassInfo.deactivate;
+        defineProperties(vm, vm, [DescriptorType.Property]);
         var vmMethods = getMethods(vm);
         var _loop_1 = function (methodName) {
             var originalMethod = vm[methodName];
@@ -481,7 +490,8 @@ var withViewModel = function (VmClass) { return function (Component) {
                 if (!context.resolver)
                     throw new Error('Resolver not found. Make sure you use the Provider component.');
                 _this.setVm(context.resolver);
-                return external_react_["createElement"](Component, __assign({}, _this.vm, _this.props));
+                var componentProps = Object.assign({}, _this.vm, _this.props);
+                return external_react_["createElement"](Component, __assign({}, componentProps));
             }));
         };
         ComponentWithViewModel.prototype.componentWillUnmount = function () {

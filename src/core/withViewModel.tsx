@@ -42,7 +42,8 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
                             throw new Error('Resolver not found. Make sure you use the Provider component.');
                             
                         this.setVm(context.resolver);
-                        return <Component {...this.vm} {...this.props} />;
+                        const componentProps = Object.assign({}, this.vm, this.props);
+                        return <Component {...componentProps} />;
                     }}
                 </InternalConsumer>
             );

@@ -1,6 +1,6 @@
 import { ViewModelClassInfo, ViewModelInstanceInfo } from '../info';
 import { IResolver, RefreshCallback, ResolverKey } from '../types';
-import { getMethods } from '../utils';
+import { defineProperties, DescriptorType, getMethods } from '../utils';
 
 export class VmResolver implements IResolver {
 
@@ -30,6 +30,11 @@ export class VmResolver implements IResolver {
         const vmInstanceInfo = ViewModelInstanceInfo.initInfo(vm);
         vmInstanceInfo.activate = vmClassInfo.activate;
         vmInstanceInfo.deactivate = vmClassInfo.deactivate;
+
+        // define properties directly on the vm instance (they currently exist
+        // on it's prototype) this way they will also be copied to withViewModel
+        // wrapped component (inside it's render method)
+        defineProperties(vm, vm, [DescriptorType.Property]);
 
         // patch methods        
         const vmMethods = getMethods(vm);
