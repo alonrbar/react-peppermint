@@ -11,6 +11,18 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
 
         private vm: any;
 
+        public componentDidMount() {
+            // invoke activate life cycle method
+            const vmInfo = ViewModelInstanceInfo.getInfo(this.vm);
+            const activateKey = vmInfo.activate;
+            if (activateKey) {
+                const activateMethod = this.vm[activateKey];
+                if (typeof activateMethod === 'function') {
+                    activateMethod();
+                }
+            }
+        }
+
         public render() {
             return (
                 <InternalConsumer>
@@ -26,6 +38,15 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
             // remove registration
             const vmInfo = ViewModelInstanceInfo.getInfo(this.vm);
             vmInfo.refreshView.delete(this);
+
+            // invoke deactivate life cycle method
+            const deactivateKey = vmInfo.deactivate;
+            if (deactivateKey) {
+                const deactivateMethod = this.vm[deactivateKey];
+                if (typeof deactivateMethod === 'function') {
+                    deactivateMethod();
+                }
+            }
         }
 
         private setVm(resolver: IResolver) {

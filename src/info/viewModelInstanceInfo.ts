@@ -22,4 +22,6 @@ export class ViewModelInstanceInfo {
      * Store view instances of this view-model and their refresh callback.
      */
     public readonly refreshView = new Map<any, RefreshCallback>();
+    public activate: string | symbol;
+    public deactivate: string | symbol;
 }

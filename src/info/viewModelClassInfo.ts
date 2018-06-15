@@ -77,6 +77,8 @@ export class ViewModelClassInfo {
     // instance members
     //
 
+    public activate: string | symbol;
+    public deactivate: string | symbol;
     public refresh: IMap<boolean> = {};
     public refreshAll: IMap<boolean> = {};
 }
