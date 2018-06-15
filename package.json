@@ -11,7 +11,7 @@
     "di",
     "dependency injection"
   ],
-  "main": "index.js",
+  "main": "dist/react-peppermint.js",
   "license": "MIT",
   "author": "Alon Bar",
   "homepage": "https://github.com/alonrbar/react-peppermint",
