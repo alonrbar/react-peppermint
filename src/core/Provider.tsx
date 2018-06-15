@@ -3,6 +3,11 @@ import { IResolver } from '../types';
 import { InternalProvider } from './internalContext';
 import { VmResolver } from './vmResolver';
 
+//
+// Here we wrap the actual React context provider with our own Provider class so
+// that we could execute custom logic upon 'render' calls.
+//
+
 export interface ProviderProps {
     resolver: IResolver;
 }
