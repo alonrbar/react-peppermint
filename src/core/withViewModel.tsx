@@ -18,6 +18,13 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
             if (activateKey) {
                 const activateMethod = this.vm[activateKey];
                 if (typeof activateMethod === 'function') {
+
+                    // log
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log(`[${this.vm.constructor.name}] activate`);
+                    }
+
+                    // invoke
                     activateMethod();
                 }
             }
@@ -44,6 +51,13 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
             if (deactivateKey) {
                 const deactivateMethod = this.vm[deactivateKey];
                 if (typeof deactivateMethod === 'function') {
+
+                    // log
+                    if (process.env.NODE_ENV === 'development') {
+                        console.log(`[${this.vm.constructor.name}] deactivate`);
+                    }
+
+                    // invoke
                     deactivateMethod();
                 }
             }
