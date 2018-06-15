@@ -49,7 +49,7 @@ export interface ProviderProps {
 
 export class Provider extends React.PureComponent<ProviderProps> { }
 
-export function withViewModel(VmClass: ResolverKey<any>): (Component: React.ComponentType) => React.PureComponent;
+export function withViewModel(VmClass: ResolverKey<any>): (Component: React.ComponentType) => React.ComponentClass;
 
 //
 // types
