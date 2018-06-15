@@ -15,7 +15,7 @@ export class VmResolver implements IResolver {
     public get<T>(key: ResolverKey<T>): T {
         const instance = this.internalResolver.get(key);
 
-        const vmInfo = ViewModelClassInfo.getInfo(instance);
+        const vmInfo = ViewModelClassInfo.getInfo(instance as any);
         if (vmInfo) {
             this.patchViewModel(instance, vmInfo);
         }

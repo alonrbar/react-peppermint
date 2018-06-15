@@ -7,5 +7,5 @@ import { ViewModelClassInfo } from "../info";
  */
 export function refreshAll(target: object, propertyKey: string | symbol): void {
     const info = ViewModelClassInfo.getOrInitInfo(target);
-    info.refreshAll[propertyKey] = true;
+    info.refreshAll[propertyKey as any] = true;
 }
