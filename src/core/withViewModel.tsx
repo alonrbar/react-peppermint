@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ViewModelInstanceInfo } from '../info';
 import { IResolver, ResolverKey } from '../types';
-import { InternalConsumer } from './reactContext';
+import { InternalConsumer } from './internalContext';
 
 // tslint:disable:variable-name
 

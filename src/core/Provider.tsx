@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IResolver } from '../types';
-import { InternalProvider } from './reactContext';
+import { InternalProvider } from './internalContext';
 import { VmResolver } from './vmResolver';
 
 export interface ProviderProps {

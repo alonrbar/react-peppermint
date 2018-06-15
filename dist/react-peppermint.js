@@ -340,9 +340,9 @@ function viewModel(ctor) {
 // EXTERNAL MODULE: external "react"
 var external_react_ = __webpack_require__("react");
 
-// CONCATENATED MODULE: ./src/core/reactContext.ts
+// CONCATENATED MODULE: ./src/core/internalContext.ts
 
-var reactContext_a = external_react_["createContext"](undefined), reactContext_Provider = reactContext_a.Provider, Consumer = reactContext_a.Consumer;
+var internalContext_a = external_react_["createContext"](undefined), internalContext_Provider = internalContext_a.Provider, Consumer = internalContext_a.Consumer;
 
 
 // CONCATENATED MODULE: ./src/core/vmResolver.ts
@@ -427,7 +427,7 @@ var Provider_Provider = (function (_super) {
     }
     Provider.prototype.render = function () {
         this.setContainer();
-        return (external_react_["createElement"](reactContext_Provider, { value: { resolver: this.vmResolver } }, this.props.children));
+        return (external_react_["createElement"](internalContext_Provider, { value: { resolver: this.vmResolver } }, this.props.children));
     };
     Provider.prototype.setContainer = function () {
         if (!this.props.resolver)
@@ -532,8 +532,8 @@ var withViewModel = function (VmClass) { return function (Component) {
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "broadcast", function() { return broadcast; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "deactivate", function() { return deactivate; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "viewModel", function() { return viewModel; });
-/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "Provider", function() { return Provider_Provider; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "withViewModel", function() { return withViewModel; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "Provider", function() { return Provider_Provider; });
 
 
 
