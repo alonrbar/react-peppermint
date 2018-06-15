@@ -12,6 +12,7 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
         private vm: any;
 
         public componentDidMount() {
+
             // invoke activate life cycle method
             const vmInfo = ViewModelInstanceInfo.getInfo(this.vm);
             const activateKey = vmInfo.activate;
@@ -34,6 +35,12 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
             return (
                 <InternalConsumer>
                     {context => {
+
+                        if (!context)
+                            throw new Error('Context not found. Make sure you use the Provider component.');
+                        if (!context.resolver)
+                            throw new Error('Resolver not found. Make sure you use the Provider component.');
+                            
                         this.setVm(context.resolver);
                         return <Component {...this.vm} {...this.props} />;
                     }}
@@ -42,6 +49,7 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
         }
 
         public componentWillUnmount() {
+            
             // remove registration
             const vmInfo = ViewModelInstanceInfo.getInfo(this.vm);
             vmInfo.refreshView.delete(this);

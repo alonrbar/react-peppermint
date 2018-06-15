@@ -28,6 +28,8 @@ export class VmResolver implements IResolver {
 
         // set vm symbols
         const vmInstanceInfo = ViewModelInstanceInfo.initInfo(vm);
+        vmInstanceInfo.activate = vmClassInfo.activate;
+        vmInstanceInfo.deactivate = vmClassInfo.deactivate;
 
         // patch methods        
         const vmMethods = getMethods(vm);

@@ -356,6 +356,8 @@ var vmResolver_VmResolver = (function () {
     VmResolver.prototype.patchViewModel = function (vm, vmClassInfo) {
         var self = this;
         var vmInstanceInfo = viewModelInstanceInfo_ViewModelInstanceInfo.initInfo(vm);
+        vmInstanceInfo.activate = vmClassInfo.activate;
+        vmInstanceInfo.deactivate = vmClassInfo.deactivate;
         var vmMethods = getMethods(vm);
         var _loop_1 = function (methodName) {
             var originalMethod = vm[methodName];
@@ -459,8 +461,6 @@ var withViewModel = function (VmClass) { return function (Component) {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         ComponentWithViewModel.prototype.componentDidMount = function () {
-            if (!this.vm)
-                return;
             var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
             var activateKey = vmInfo.activate;
             if (activateKey) {
@@ -476,6 +476,10 @@ var withViewModel = function (VmClass) { return function (Component) {
         ComponentWithViewModel.prototype.render = function () {
             var _this = this;
             return (external_react_["createElement"](Consumer, null, function (context) {
+                if (!context)
+                    throw new Error('Context not found. Make sure you use the Provider component.');
+                if (!context.resolver)
+                    throw new Error('Resolver not found. Make sure you use the Provider component.');
                 _this.setVm(context.resolver);
                 return external_react_["createElement"](Component, __assign({}, _this.vm, _this.props));
             }));
