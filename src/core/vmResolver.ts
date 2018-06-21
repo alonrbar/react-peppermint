@@ -1,6 +1,6 @@
 import { ViewModelClassInfo, ViewModelInstanceInfo } from '../info';
 import { IResolver, Method, RefreshCallback, ResolverKey } from '../types';
-import { defineProperties, DescriptorType, getMethods } from '../utils';
+import { defineProperties, DescriptorType, getMethods, isPromise } from '../utils';
 
 export class VmResolver implements IResolver {
 
@@ -56,6 +56,7 @@ export class VmResolver implements IResolver {
         methodName: string
     ) {
 
+        const self = this;  // tslint:disable-line:no-this-assignment
         const originalMethod: Method = vm[methodName];
         const isAction = vmClassInfo.refresh[methodName];
         const isBroadcast = vmClassInfo.refreshAll[methodName];
@@ -65,7 +66,7 @@ export class VmResolver implements IResolver {
 
             // patch actions
             const freshWrapper = function (this: any) {
-                
+
                 // measure time
                 let start: number;
                 if (process.env.NODE_ENV === 'development') {
@@ -74,22 +75,33 @@ export class VmResolver implements IResolver {
 
                 // call the original method
                 const result = originalMethod.apply(this, arguments);
+                if (isPromise(result)) {
+                    return result.then((resValue: any) => {
 
-                // refresh views
-                if (isAction) {
-                    vmInstanceInfo.refreshView.forEach(refresh => refresh());
-                } else if (isBroadcast) {
-                    resolver.refreshAll();
+                        // refresh views
+                        self.doRefresh(isAction, resolver, vmInstanceInfo);
+
+                        // log
+                        if (process.env.NODE_ENV === 'development') {
+                            self.logActionEnd(start, vm, methodName);
+                        }
+
+                        // return original result
+                        return resValue;
+                    });
+                } else {
+
+                    // refresh views
+                    self.doRefresh(isAction, resolver, vmInstanceInfo);
+
+                    // log
+                    if (process.env.NODE_ENV === 'development') {
+                        self.logActionEnd(start, vm, methodName);
+                    }
+
+                    // return original result
+                    return result;
                 }
-
-                // log
-                if (process.env.NODE_ENV === 'development') {
-                    const totalTime = Date.now() - start;
-                    console.log(`[${vm.constructor.name}] ${methodName} (in ${totalTime}ms)`);
-                }
-
-                // return original result
-                return result;
             };
 
             finalMethod = freshWrapper;
@@ -101,5 +113,18 @@ export class VmResolver implements IResolver {
 
         // bind vm methods to itself
         vm[methodName] = finalMethod.bind(vm);
+    }
+
+    private doRefresh(isAction: boolean, resolver: VmResolver, vmInstanceInfo: ViewModelInstanceInfo) {
+        if (isAction) {
+            vmInstanceInfo.refreshView.forEach(refresh => refresh());
+        } else {
+            resolver.refreshAll();
+        }
+    }
+
+    private logActionEnd(startTime: number, vm: any, methodName: string) {
+        const totalTime = Date.now() - startTime;
+        console.log(`[${vm.constructor.name}] ${methodName} (in ${totalTime}ms)`);
     }
 }

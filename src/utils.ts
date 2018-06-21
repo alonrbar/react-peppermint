@@ -129,3 +129,7 @@ export function getPrototype(obj: object | Constructor<any>): object {
         throw new Error("Expected an object or a function. Got: " + obj);
     }
 }
+
+export function isPromise(candidate: any) {
+    return (candidate && typeof candidate.then === 'function');
+}

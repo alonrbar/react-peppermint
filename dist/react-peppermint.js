@@ -220,6 +220,9 @@ function getPrototype(obj) {
         throw new Error("Expected an object or a function. Got: " + obj);
     }
 }
+function isPromise(candidate) {
+    return (candidate && typeof candidate.then === 'function');
+}
 
 // CONCATENATED MODULE: ./src/info/viewModelClassInfo.ts
 
@@ -374,6 +377,7 @@ var vmResolver_VmResolver = (function () {
         }
     };
     VmResolver.prototype.patchMethod = function (resolver, vm, vmClassInfo, vmInstanceInfo, methodName) {
+        var self = this;
         var originalMethod = vm[methodName];
         var isAction = vmClassInfo.refresh[methodName];
         var isBroadcast = vmClassInfo.refreshAll[methodName];
@@ -385,17 +389,22 @@ var vmResolver_VmResolver = (function () {
                     start = Date.now();
                 }
                 var result = originalMethod.apply(this, arguments);
-                if (isAction) {
-                    vmInstanceInfo.refreshView.forEach(function (refresh) { return refresh(); });
+                if (isPromise(result)) {
+                    return result.then(function (resValue) {
+                        self.doRefresh(isAction, resolver, vmInstanceInfo);
+                        if (true) {
+                            self.logActionEnd(start, vm, methodName);
+                        }
+                        return resValue;
+                    });
                 }
-                else if (isBroadcast) {
-                    resolver.refreshAll();
+                else {
+                    self.doRefresh(isAction, resolver, vmInstanceInfo);
+                    if (true) {
+                        self.logActionEnd(start, vm, methodName);
+                    }
+                    return result;
                 }
-                if (true) {
-                    var totalTime = Date.now() - start;
-                    console.log("[" + vm.constructor.name + "] " + methodName + " (in " + totalTime + "ms)");
-                }
-                return result;
             };
             finalMethod = freshWrapper;
         }
@@ -403,6 +412,18 @@ var vmResolver_VmResolver = (function () {
             finalMethod = originalMethod;
         }
         vm[methodName] = finalMethod.bind(vm);
+    };
+    VmResolver.prototype.doRefresh = function (isAction, resolver, vmInstanceInfo) {
+        if (isAction) {
+            vmInstanceInfo.refreshView.forEach(function (refresh) { return refresh(); });
+        }
+        else {
+            resolver.refreshAll();
+        }
+    };
+    VmResolver.prototype.logActionEnd = function (startTime, vm, methodName) {
+        var totalTime = Date.now() - startTime;
+        console.log("[" + vm.constructor.name + "] " + methodName + " (in " + totalTime + "ms)");
     };
     return VmResolver;
 }());
@@ -534,8 +555,8 @@ var withViewModel = function (VmClass) { return function (Component) {
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "broadcast", function() { return broadcast; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "deactivate", function() { return deactivate; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "viewModel", function() { return viewModel; });
-/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "withViewModel", function() { return withViewModel; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "Provider", function() { return Provider_Provider; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "withViewModel", function() { return withViewModel; });
 
 
 

@@ -1,3 +1,15 @@
+# Change Log
+
+## [0.1.0 - 2018-06-21](https://github.com/alonrbar/react-peppermint)
+
+### Added
+
+- Better support for async methods.
+
+## [0.0.2 - 2018-06-15](https://github.com/alonrbar/react-peppermint)
+
+- First working version.
+
 ## [0.0.1 - 2018-05-16](https://github.com/alonrbar/react-peppermint)
 
 - Welcome react-peppermint!
