@@ -1,8 +1,10 @@
 import { ViewModelClassInfo, ViewModelInstanceInfo } from '../info';
-import { IResolver, Method, RefreshCallback, ResolverKey } from '../types';
+import { IResolver, Method, MethodInvokedEvent, RefreshCallback, ResolverKey } from '../types';
 import { defineProperties, DescriptorType, getMethods, isPromise } from '../utils';
 
 export class VmResolver implements IResolver {
+
+    public onMethodInvoked: (e: MethodInvokedEvent) => void;
 
     public readonly internalResolver: IResolver;
     private readonly refreshAll: RefreshCallback;
@@ -15,16 +17,23 @@ export class VmResolver implements IResolver {
     public get<T>(key: ResolverKey<T>): T {
         const instance = this.internalResolver.get(key);
 
-        const vmInfo = ViewModelClassInfo.getInfo(instance as any);
-        if (vmInfo) {
-            this.patchViewModel(instance, vmInfo);
+        // if it's a vm class
+        const vmClassInfo = ViewModelClassInfo.getInfo(instance);
+        if (vmClassInfo) {
+
+            // and the current instance is not already patched
+            const vmInstanceInfo = ViewModelInstanceInfo.getInfo(instance);
+            if (!vmInstanceInfo) {
+
+                // patch current vm instance
+                this.patchViewModel(instance, vmClassInfo);
+            }
         }
 
         return instance;
     }
 
     private patchViewModel(vm: any, vmClassInfo: ViewModelClassInfo) {
-        const self = this;  // tslint:disable-line:no-this-assignment
 
         // set vm symbols
         const vmInstanceInfo = ViewModelInstanceInfo.initInfo(vm);
@@ -44,17 +53,11 @@ export class VmResolver implements IResolver {
         // patch and define methods
         const vmMethods = getMethods(vm);
         for (const methodName of Object.keys(vmMethods)) {
-            this.patchMethod(self, vm, vmClassInfo, vmInstanceInfo, methodName);
+            this.patchMethod(vm, vmClassInfo, vmInstanceInfo, methodName);
         }
     }
 
-    private patchMethod(
-        resolver: VmResolver,
-        vm: any,
-        vmClassInfo: ViewModelClassInfo,
-        vmInstanceInfo: ViewModelInstanceInfo,
-        methodName: string
-    ) {
+    private patchMethod(vm: any, vmClassInfo: ViewModelClassInfo, vmInstanceInfo: ViewModelInstanceInfo, methodName: string) {
 
         const self = this;  // tslint:disable-line:no-this-assignment
         const originalMethod: Method = vm[methodName];
@@ -65,66 +68,50 @@ export class VmResolver implements IResolver {
         if (isAction || isBroadcast) {
 
             // patch actions
-            const freshWrapper = function (this: any) {
-
-                // measure time
-                let start: number;
-                if (process.env.NODE_ENV === 'development') {
-                    start = Date.now();
-                }
+            finalMethod = function (this: any) {
 
                 // call the original method
                 const result = originalMethod.apply(this, arguments);
+
+                // refresh and return
                 if (isPromise(result)) {
                     return result.then((resValue: any) => {
-
-                        // refresh views
-                        self.doRefresh(isAction, resolver, vmInstanceInfo);
-
-                        // log
-                        if (process.env.NODE_ENV === 'development') {
-                            self.logActionEnd(start, vm, methodName);
-                        }
-
-                        // return original result
+                        self.refreshView(isBroadcast, vmInstanceInfo);
+                        self.notifyMethodInvoked(vm, methodName);
                         return resValue;
                     });
                 } else {
-
-                    // refresh views
-                    self.doRefresh(isAction, resolver, vmInstanceInfo);
-
-                    // log
-                    if (process.env.NODE_ENV === 'development') {
-                        self.logActionEnd(start, vm, methodName);
-                    }
-
-                    // return original result
+                    self.refreshView(isBroadcast, vmInstanceInfo);
+                    self.notifyMethodInvoked(vm, methodName);
                     return result;
                 }
             };
 
-            finalMethod = freshWrapper;
         } else {
 
             // keep other methods untouched
             finalMethod = originalMethod;
         }
 
-        // bind vm methods to itself
+        // bind all vm methods to itself
         vm[methodName] = finalMethod.bind(vm);
     }
 
-    private doRefresh(isAction: boolean, resolver: VmResolver, vmInstanceInfo: ViewModelInstanceInfo) {
-        if (isAction) {
-            vmInstanceInfo.refreshView.forEach(refresh => refresh());
+    private refreshView(refreshAll: boolean, vmInstanceInfo: ViewModelInstanceInfo): void {
+        if (refreshAll) {
+            this.refreshAll();
         } else {
-            resolver.refreshAll();
+            vmInstanceInfo.refreshView.forEach(refresh => refresh());
         }
     }
 
-    private logActionEnd(startTime: number, vm: any, methodName: string) {
-        const totalTime = Date.now() - startTime;
-        console.log(`[${vm.constructor.name}] ${methodName} (in ${totalTime}ms)`);
+    private notifyMethodInvoked(vm: any, methodName: string): void {
+        const handler = this.onMethodInvoked;
+        if (handler) {
+            handler({
+                vm,
+                methodName
+            });
+        }
     }
 }

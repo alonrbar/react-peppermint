@@ -6,6 +6,11 @@ export interface IResolver {
     get<T>(key: ResolverKey<T>): T;
 }
 
+export interface MethodInvokedEvent {
+    vm: any;
+    methodName: string;
+}
+
 export interface Constructor<T> {
     new(...args: any[]): T;
 }

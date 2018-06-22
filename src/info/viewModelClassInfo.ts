@@ -1,5 +1,5 @@
 import { getOwnSymbol, getSymbol, setSymbol, VIEW_MODEL_CLASS_INFO } from '../symbols';
-import { Constructor, IMap } from '../types';
+import { IMap } from '../types';
 import { getConstructorOwnProp, getConstructorProp } from '../utils';
 
 /**
@@ -12,7 +12,7 @@ export class ViewModelClassInfo {
     // public static
     //
 
-    public static getInfo(obj: object | Constructor<any>): ViewModelClassInfo {
+    public static getInfo(obj: any): ViewModelClassInfo {
         if (!obj)
             return undefined;
 
@@ -28,7 +28,7 @@ export class ViewModelClassInfo {
         return undefined;
     }
 
-    public static getOrInitInfo(obj: object | Constructor<any>): ViewModelClassInfo {
+    public static getOrInitInfo(obj: any): ViewModelClassInfo {
 
         // get existing info
         const info = ViewModelClassInfo.getInfo(obj);
@@ -43,7 +43,7 @@ export class ViewModelClassInfo {
     // private static
     //
 
-    private static getOwnInfo(obj: object | Constructor<any>): ViewModelClassInfo {
+    private static getOwnInfo(obj: any): ViewModelClassInfo {
         if (typeof obj === 'object') {
             return getConstructorOwnProp(obj, VIEW_MODEL_CLASS_INFO);
         } else {
@@ -51,7 +51,7 @@ export class ViewModelClassInfo {
         }
     }
 
-    private static getBaseInfo(obj: object | Constructor<any>): ViewModelClassInfo {
+    private static getBaseInfo(obj: any): ViewModelClassInfo {
         if (typeof obj === 'object') {
             return getConstructorProp(obj, VIEW_MODEL_CLASS_INFO);
         } else {
@@ -59,7 +59,7 @@ export class ViewModelClassInfo {
         }
     }
 
-    private static initInfo(obj: object | Constructor<any>): ViewModelClassInfo {
+    private static initInfo(obj: any): ViewModelClassInfo {
         // information is stored on the class constructor to 
         // be available to all class instances
         const isConstructor = (typeof obj === 'function' ? true : false);
