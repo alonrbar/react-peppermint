@@ -1,5 +1,5 @@
 import { viewModel } from '../../src';
-import { Router } from "../utils";
+import { Router } from './router';
 
 @viewModel
 export class SecondPageVM {

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from '../src';
-import { App } from './app';
-import { resolver } from './utils';
+import { resolver } from './app';
+import { App } from './view';
 
 ReactDOM.render(
     <Provider resolver={resolver}>

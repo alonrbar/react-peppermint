@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { withViewModel } from '../../src';
-import { Router } from '../utils';
-import { SecondPageVM } from './secondPageVm';
+import { Router, SecondPageVM } from '../app';
 
 export class SecondPageProps {
     public router: Router;

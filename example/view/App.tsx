@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { withViewModel } from '../../src';
-import { Route, Router } from '../utils';
-import { AppVM } from './appVm';
+import { AppVM, Route, Router } from '../app';
 import { HomePage } from './HomePage';
 import { SecondPage } from './SecondPage';
 

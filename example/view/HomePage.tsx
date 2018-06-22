@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { withViewModel } from '../../src';
-import { Route, Router } from '../utils';
-import { HomePageVM } from './homePageVm';
+import { HomePageVM, Route, Router } from '../app';
 
 export class HomePageProps {
     public router: Router;

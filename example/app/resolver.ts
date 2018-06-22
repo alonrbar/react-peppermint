@@ -1,8 +1,8 @@
 import { IResolver } from '../../src';
-import { AppVM } from '../app/appVm';
-import { HomePageVM } from '../app/homePageVm';
-import { SecondPageVM } from '../app/secondPageVm';
+import { AppVM } from './appVm';
+import { HomePageVM } from './homePageVm';
 import { Router } from './router';
+import { SecondPageVM } from './secondPageVm';
 
 const router = new Router();
 
