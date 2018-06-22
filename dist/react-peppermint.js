@@ -358,14 +358,16 @@ var vmResolver_VmResolver = (function () {
     }
     VmResolver.prototype.get = function (key) {
         var instance = this.internalResolver.get(key);
-        var vmInfo = viewModelClassInfo_ViewModelClassInfo.getInfo(instance);
-        if (vmInfo) {
-            this.patchViewModel(instance, vmInfo);
+        var vmClassInfo = viewModelClassInfo_ViewModelClassInfo.getInfo(instance);
+        if (vmClassInfo) {
+            var vmInstanceInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(instance);
+            if (!vmInstanceInfo) {
+                this.patchViewModel(instance, vmClassInfo);
+            }
         }
         return instance;
     };
     VmResolver.prototype.patchViewModel = function (vm, vmClassInfo) {
-        var self = this;
         var vmInstanceInfo = viewModelInstanceInfo_ViewModelInstanceInfo.initInfo(vm);
         vmInstanceInfo.activate = vmClassInfo.activate;
         vmInstanceInfo.deactivate = vmClassInfo.deactivate;
@@ -373,57 +375,53 @@ var vmResolver_VmResolver = (function () {
         var vmMethods = getMethods(vm);
         for (var _i = 0, _a = Object.keys(vmMethods); _i < _a.length; _i++) {
             var methodName = _a[_i];
-            this.patchMethod(self, vm, vmClassInfo, vmInstanceInfo, methodName);
+            this.patchMethod(vm, vmClassInfo, vmInstanceInfo, methodName);
         }
     };
-    VmResolver.prototype.patchMethod = function (resolver, vm, vmClassInfo, vmInstanceInfo, methodName) {
+    VmResolver.prototype.patchMethod = function (vm, vmClassInfo, vmInstanceInfo, methodName) {
         var self = this;
         var originalMethod = vm[methodName];
         var isAction = vmClassInfo.refresh[methodName];
         var isBroadcast = vmClassInfo.refreshAll[methodName];
         var finalMethod;
         if (isAction || isBroadcast) {
-            var freshWrapper = function () {
-                var start;
-                if (true) {
-                    start = Date.now();
-                }
+            finalMethod = function () {
                 var result = originalMethod.apply(this, arguments);
                 if (isPromise(result)) {
                     return result.then(function (resValue) {
-                        self.doRefresh(isAction, resolver, vmInstanceInfo);
-                        if (true) {
-                            self.logActionEnd(start, vm, methodName);
-                        }
+                        self.refreshView(isBroadcast, vmInstanceInfo);
+                        self.notifyMethodInvoked(vm, methodName);
                         return resValue;
                     });
                 }
                 else {
-                    self.doRefresh(isAction, resolver, vmInstanceInfo);
-                    if (true) {
-                        self.logActionEnd(start, vm, methodName);
-                    }
+                    self.refreshView(isBroadcast, vmInstanceInfo);
+                    self.notifyMethodInvoked(vm, methodName);
                     return result;
                 }
             };
-            finalMethod = freshWrapper;
         }
         else {
             finalMethod = originalMethod;
         }
         vm[methodName] = finalMethod.bind(vm);
     };
-    VmResolver.prototype.doRefresh = function (isAction, resolver, vmInstanceInfo) {
-        if (isAction) {
-            vmInstanceInfo.refreshView.forEach(function (refresh) { return refresh(); });
+    VmResolver.prototype.refreshView = function (refreshAll, vmInstanceInfo) {
+        if (refreshAll) {
+            this.refreshAll();
         }
         else {
-            resolver.refreshAll();
+            vmInstanceInfo.refreshView.forEach(function (refresh) { return refresh(); });
         }
     };
-    VmResolver.prototype.logActionEnd = function (startTime, vm, methodName) {
-        var totalTime = Date.now() - startTime;
-        console.log("[" + vm.constructor.name + "] " + methodName + " (in " + totalTime + "ms)");
+    VmResolver.prototype.notifyMethodInvoked = function (vm, methodName) {
+        var handler = this.onMethodInvoked;
+        if (handler) {
+            handler({
+                vm: vm,
+                methodName: methodName
+            });
+        }
     };
     return VmResolver;
 }());
@@ -459,6 +457,7 @@ var Provider_Provider = (function (_super) {
             return;
         }
         this.vmResolver = new vmResolver_VmResolver(this.props.resolver, this.forceUpdate.bind(this));
+        this.vmResolver.onMethodInvoked = this.props.onMethodInvoked;
     };
     return Provider;
 }(external_react_["PureComponent"]));
