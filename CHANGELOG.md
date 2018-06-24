@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/alonrbar/react-peppermint)
 
+### Added
+
+- Update typings.
+
 ## [0.2.0 - 2018-06-21](https://github.com/alonrbar/react-peppermint/tree/v0.2.0)
 
 ### Changed

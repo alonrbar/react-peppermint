@@ -45,6 +45,7 @@ export function broadcast(target: object, propertyKey: string | symbol): void;
 
 export interface ProviderProps {
     resolver: IResolver;
+    onMethodInvoked?: (e: MethodInvokedEvent) => void;
 }
 
 export class Provider extends React.PureComponent<ProviderProps> { }
@@ -59,6 +60,11 @@ export declare type ResolverKey<T> = Constructor<T> | string | symbol;
 
 export interface IResolver {
     get<T>(key: ResolverKey<T>): T;
+}
+
+export interface MethodInvokedEvent {
+    vm: any;
+    methodName: string;
 }
 
 export interface Constructor<T> {
