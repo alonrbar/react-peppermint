@@ -50,13 +50,13 @@ export interface ProviderProps {
 
 export class Provider extends React.PureComponent<ProviderProps> { }
 
-export function withViewModel(VmClass: ResolverKey<any>): (Component: React.ComponentType) => React.ComponentClass;
+export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnhancer<TVm>;
 
 //
 // types
 //
 
-export declare type ResolverKey<T> = Constructor<T> | string | symbol;
+export type ResolverKey<T> = Constructor<T> | string | symbol;
 
 export interface IResolver {
     get<T>(key: ResolverKey<T>): T;
@@ -67,11 +67,15 @@ export interface MethodInvokedEvent {
     methodName: string;
 }
 
+export type ComponentEnhancer<TInjectedProps> = <TRequiredProps>(Component: React.ComponentType<TRequiredProps>) => React.ComponentClass<OmitProps<TRequiredProps, TInjectedProps>>;
+
+export type OmitProps<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
+
 export interface Constructor<T> {
     new(...args: any[]): T;
 }
 
-export interface IMap<T> { 
+export interface IMap<T> {
     [key: string]: T;
 }
 
