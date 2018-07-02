@@ -1,3 +1,4 @@
+import { ActionOptions } from '../options';
 import { getOwnSymbol, getSymbol, setSymbol, VIEW_MODEL_CLASS_INFO } from '../symbols';
 import { IMap } from '../types';
 import { getConstructorOwnProp, getConstructorProp } from '../utils';
@@ -79,6 +80,6 @@ export class ViewModelClassInfo {
 
     public activate: string | symbol;
     public deactivate: string | symbol;
-    public refresh: IMap<boolean> = {};
-    public refreshAll: IMap<boolean> = {};
+    public action: IMap<ActionOptions> = {};
+    public broadcast: IMap<ActionOptions> = {};
 }

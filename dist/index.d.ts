@@ -30,6 +30,7 @@ export function deactivate(target: object, propertyKey: string | symbol): void;
  * 
  * Mark this method as a view refresher.
  */
+export function action(options: ActionOptions): PropertyDecorator;
 export function action(target: object, propertyKey: string | symbol): void;
 
 /**
@@ -37,6 +38,7 @@ export function action(target: object, propertyKey: string | symbol): void;
  * 
  * Mark this method as an all-view refresher.
  */
+export function broadcast(options: ActionOptions): PropertyDecorator;
 export function broadcast(target: object, propertyKey: string | symbol): void;
 
 //
@@ -51,6 +53,20 @@ export interface ProviderProps {
 export class Provider extends React.PureComponent<ProviderProps> { }
 
 export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnhancer<TVm>;
+
+//
+// options
+//
+
+export class ActionOptions {
+
+    /**
+     * By default if the method result is a promise the action will be invoked
+     * only after the promise is resolved. Set this flag to 'true' to skip the
+     * wait for the promise.
+     */
+    public immediate: boolean;
+}
 
 //
 // types

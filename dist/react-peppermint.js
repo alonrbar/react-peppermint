@@ -98,9 +98,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ "./src/index.ts":
 /*!***********************************!*\
-  !*** ./src/index.ts + 16 modules ***!
+  !*** ./src/index.ts + 17 modules ***!
   \***********************************/
-/*! exports provided: action, activate, broadcast, deactivate, viewModel, Provider, withViewModel */
+/*! exports provided: ActionOptions, action, activate, broadcast, deactivate, viewModel, Provider, withViewModel */
 /*! ModuleConcatenation bailout: Cannot concat with external "react" (<- Module is not an ECMAScript module) */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -229,8 +229,8 @@ function isPromise(candidate) {
 
 var viewModelClassInfo_ViewModelClassInfo = (function () {
     function ViewModelClassInfo() {
-        this.refresh = {};
-        this.refreshAll = {};
+        this.action = {};
+        this.broadcast = {};
     }
     ViewModelClassInfo.getInfo = function (obj) {
         if (!obj)
@@ -299,11 +299,30 @@ var viewModelInstanceInfo_ViewModelInstanceInfo = (function () {
 
 
 
+// CONCATENATED MODULE: ./src/options.ts
+var ActionOptions = (function () {
+    function ActionOptions(initial) {
+        this.immediate = false;
+        Object.assign(this, initial);
+    }
+    return ActionOptions;
+}());
+
+
 // CONCATENATED MODULE: ./src/decorators/action.ts
 
-function action(target, propertyKey) {
+
+function action(targetOrOptions, propertyKeyOrNothing) {
+    if (propertyKeyOrNothing) {
+        actionDecorator.call(undefined, targetOrOptions, propertyKeyOrNothing);
+    }
+    else {
+        return function (target, propertyKey) { return actionDecorator(target, propertyKey, targetOrOptions); };
+    }
+}
+function actionDecorator(target, propertyKey, options) {
     var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
-    info.refresh[propertyKey] = true;
+    info.action[propertyKey] = new ActionOptions(options);
 }
 
 // CONCATENATED MODULE: ./src/decorators/activate.ts
@@ -315,9 +334,18 @@ function activate(target, propertyKey) {
 
 // CONCATENATED MODULE: ./src/decorators/broadcast.ts
 
-function broadcast(target, propertyKey) {
+
+function broadcast(targetOrOptions, propertyKeyOrNothing) {
+    if (propertyKeyOrNothing) {
+        broadcastDecorator.call(undefined, targetOrOptions, propertyKeyOrNothing);
+    }
+    else {
+        return function (target, propertyKey) { return broadcastDecorator(target, propertyKey, targetOrOptions); };
+    }
+}
+function broadcastDecorator(target, propertyKey, options) {
     var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
-    info.refreshAll[propertyKey] = true;
+    info.broadcast[propertyKey] = new ActionOptions(options);
 }
 
 // CONCATENATED MODULE: ./src/decorators/deactivate.ts
@@ -381,21 +409,22 @@ var vmResolver_VmResolver = (function () {
     VmResolver.prototype.patchMethod = function (vm, vmClassInfo, vmInstanceInfo, methodName) {
         var self = this;
         var originalMethod = vm[methodName];
-        var isAction = vmClassInfo.refresh[methodName];
-        var isBroadcast = vmClassInfo.refreshAll[methodName];
+        var actionOptions = vmClassInfo.action[methodName];
+        var broadcastOptions = vmClassInfo.broadcast[methodName];
+        var anyOptions = (actionOptions || broadcastOptions);
         var finalMethod;
-        if (isAction || isBroadcast) {
+        if (anyOptions) {
             finalMethod = function () {
                 var result = originalMethod.apply(this, arguments);
-                if (isPromise(result)) {
+                if (isPromise(result) && !anyOptions.immediate) {
                     return result.then(function (resValue) {
-                        self.refreshView(isBroadcast, vmInstanceInfo);
+                        self.refreshView(!!broadcastOptions, vmInstanceInfo);
                         self.notifyMethodInvoked(vm, methodName);
                         return resValue;
                     });
                 }
                 else {
-                    self.refreshView(isBroadcast, vmInstanceInfo);
+                    self.refreshView(!!broadcastOptions, vmInstanceInfo);
                     self.notifyMethodInvoked(vm, methodName);
                     return result;
                 }
@@ -556,6 +585,8 @@ var withViewModel = function (VmClass) { return function (Component) {
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "viewModel", function() { return viewModel; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "Provider", function() { return Provider_Provider; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "withViewModel", function() { return withViewModel; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "ActionOptions", function() { return ActionOptions; });
+
 
 
 

@@ -61,11 +61,12 @@ export class VmResolver implements IResolver {
 
         const self = this;  // tslint:disable-line:no-this-assignment
         const originalMethod: Method = vm[methodName];
-        const isAction = vmClassInfo.refresh[methodName];
-        const isBroadcast = vmClassInfo.refreshAll[methodName];
+        const actionOptions = vmClassInfo.action[methodName];
+        const broadcastOptions = vmClassInfo.broadcast[methodName];
+        const anyOptions = (actionOptions || broadcastOptions);
 
         let finalMethod: Method;
-        if (isAction || isBroadcast) {
+        if (anyOptions) {
 
             // patch actions
             finalMethod = function (this: any) {
@@ -74,14 +75,14 @@ export class VmResolver implements IResolver {
                 const result = originalMethod.apply(this, arguments);
 
                 // refresh and return
-                if (isPromise(result)) {
+                if (isPromise(result) && !anyOptions.immediate) {
                     return result.then((resValue: any) => {
-                        self.refreshView(isBroadcast, vmInstanceInfo);
+                        self.refreshView(!!broadcastOptions, vmInstanceInfo);
                         self.notifyMethodInvoked(vm, methodName);
                         return resValue;
                     });
                 } else {
-                    self.refreshView(isBroadcast, vmInstanceInfo);
+                    self.refreshView(!!broadcastOptions, vmInstanceInfo);
                     self.notifyMethodInvoked(vm, methodName);
                     return result;
                 }
