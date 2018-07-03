@@ -15,10 +15,8 @@ export interface Constructor<T> {
     new(...args: any[]): T;
 }
 
-export interface IMap<T> { 
+export interface IMap<T> {
     [key: string]: T;
 }
 
 export type Method = Function;
-
-export type RefreshCallback = () => void;

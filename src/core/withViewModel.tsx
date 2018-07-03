@@ -40,7 +40,7 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
                             throw new Error('Context not found. Make sure you use the Provider component.');
                         if (!context.resolver)
                             throw new Error('Resolver not found. Make sure you use the Provider component.');
-                            
+
                         this.setVm(context.resolver);
                         const componentProps = Object.assign({}, this.vm, this.props);
                         return <Component {...componentProps} />;
@@ -50,10 +50,10 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
         }
 
         public componentWillUnmount() {
-            
+
             // remove registration
             const vmInfo = ViewModelInstanceInfo.getInfo(this.vm);
-            vmInfo.refreshView.delete(this);
+            vmInfo.removeView(this);
 
             // invoke deactivate life cycle method
             const deactivateKey = vmInfo.deactivate;
@@ -85,7 +85,7 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
                 throw new Error(`Class ${this.vm.constructor.name} is used as a view-model but no decorator was used.`);
             }
 
-            vmInfo.refreshView.set(this, this.forceUpdate.bind(this));
+            vmInfo.addView(this);
         }
     };
 };

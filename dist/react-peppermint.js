@@ -223,6 +223,14 @@ function getPrototype(obj) {
 function isPromise(candidate) {
     return (candidate && typeof candidate.then === 'function');
 }
+function removeOneFromArray(array, item) {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === item) {
+            return array.splice(i, 1)[0];
+        }
+    }
+    return undefined;
+}
 
 // CONCATENATED MODULE: ./src/info/viewModelClassInfo.ts
 
@@ -280,7 +288,6 @@ var viewModelClassInfo_ViewModelClassInfo = (function () {
 
 var viewModelInstanceInfo_ViewModelInstanceInfo = (function () {
     function ViewModelInstanceInfo() {
-        this.refreshView = new Map();
     }
     ViewModelInstanceInfo.getInfo = function (vm) {
         if (!vm)
@@ -380,9 +387,11 @@ var internalContext_a = external_react_["createContext"](undefined), internalCon
 
 
 var vmResolver_VmResolver = (function () {
-    function VmResolver(internalContainer, refreshAll) {
+    function VmResolver(internalContainer, rootComponent) {
+        this.viewsByViewModel = new Map();
+        this.allViews = [];
         this.internalResolver = internalContainer;
-        this.refreshAll = refreshAll;
+        this.allViews.push(rootComponent);
     }
     VmResolver.prototype.get = function (key) {
         var instance = this.internalResolver.get(key);
@@ -396,17 +405,36 @@ var vmResolver_VmResolver = (function () {
         return instance;
     };
     VmResolver.prototype.patchViewModel = function (vm, vmClassInfo) {
+        var _this = this;
         var vmInstanceInfo = viewModelInstanceInfo_ViewModelInstanceInfo.initInfo(vm);
         vmInstanceInfo.activate = vmClassInfo.activate;
         vmInstanceInfo.deactivate = vmClassInfo.deactivate;
+        vmInstanceInfo.addView = function (view) { return _this.addView(vm, view); };
+        vmInstanceInfo.removeView = function (view) { return _this.removeView(vm, view); };
         defineProperties(vm, vm, [DescriptorType.Property]);
         var vmMethods = getMethods(vm);
         for (var _i = 0, _a = Object.keys(vmMethods); _i < _a.length; _i++) {
             var methodName = _a[_i];
-            this.patchMethod(vm, vmClassInfo, vmInstanceInfo, methodName);
+            this.patchMethod(vm, vmClassInfo, methodName);
         }
     };
-    VmResolver.prototype.patchMethod = function (vm, vmClassInfo, vmInstanceInfo, methodName) {
+    VmResolver.prototype.addView = function (vm, view) {
+        var components = this.viewsByViewModel.get(vm);
+        if (!components) {
+            components = new Set();
+            this.viewsByViewModel.set(vm, components);
+        }
+        components.add(view);
+        this.allViews.push(view);
+    };
+    VmResolver.prototype.removeView = function (vm, view) {
+        var components = this.viewsByViewModel.get(vm);
+        components.delete(view);
+        if (!components.size)
+            this.viewsByViewModel.delete(vm);
+        removeOneFromArray(this.allViews, view);
+    };
+    VmResolver.prototype.patchMethod = function (vm, vmClassInfo, methodName) {
         var self = this;
         var originalMethod = vm[methodName];
         var actionOptions = vmClassInfo.action[methodName];
@@ -418,13 +446,13 @@ var vmResolver_VmResolver = (function () {
                 var result = originalMethod.apply(this, arguments);
                 if (isPromise(result) && !anyOptions.immediate) {
                     return result.then(function (resValue) {
-                        self.refreshView(!!broadcastOptions, vmInstanceInfo);
+                        self.refreshView(!!broadcastOptions, vm);
                         self.notifyMethodInvoked(vm, methodName);
                         return resValue;
                     });
                 }
                 else {
-                    self.refreshView(!!broadcastOptions, vmInstanceInfo);
+                    self.refreshView(!!broadcastOptions, vm);
                     self.notifyMethodInvoked(vm, methodName);
                     return result;
                 }
@@ -435,12 +463,18 @@ var vmResolver_VmResolver = (function () {
         }
         vm[methodName] = finalMethod.bind(vm);
     };
-    VmResolver.prototype.refreshView = function (refreshAll, vmInstanceInfo) {
+    VmResolver.prototype.refreshView = function (refreshAll, vm) {
+        var views;
         if (refreshAll) {
-            this.refreshAll();
+            views = this.allViews.slice();
         }
         else {
-            vmInstanceInfo.refreshView.forEach(function (refresh) { return refresh(); });
+            views = this.viewsByViewModel.get(vm);
+        }
+        if (views) {
+            views.forEach(function (component) {
+                component.forceUpdate();
+            });
         }
     };
     VmResolver.prototype.notifyMethodInvoked = function (vm, methodName) {
@@ -485,7 +519,7 @@ var Provider_Provider = (function (_super) {
         if (this.vmResolver && this.vmResolver.internalResolver === this.props.resolver) {
             return;
         }
-        this.vmResolver = new vmResolver_VmResolver(this.props.resolver, this.forceUpdate.bind(this));
+        this.vmResolver = new vmResolver_VmResolver(this.props.resolver, this);
         this.vmResolver.onMethodInvoked = this.props.onMethodInvoked;
     };
     return Provider;
@@ -547,7 +581,7 @@ var withViewModel = function (VmClass) { return function (Component) {
         };
         ComponentWithViewModel.prototype.componentWillUnmount = function () {
             var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
-            vmInfo.refreshView.delete(this);
+            vmInfo.removeView(this);
             var deactivateKey = vmInfo.deactivate;
             if (deactivateKey) {
                 var deactivateMethod = this.vm[deactivateKey];
@@ -567,7 +601,7 @@ var withViewModel = function (VmClass) { return function (Component) {
             if (!vmInfo) {
                 throw new Error("Class " + this.vm.constructor.name + " is used as a view-model but no decorator was used.");
             }
-            vmInfo.refreshView.set(this, this.forceUpdate.bind(this));
+            vmInfo.addView(this);
         };
         return ComponentWithViewModel;
     }(external_react_["PureComponent"]));

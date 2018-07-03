@@ -133,3 +133,16 @@ export function getPrototype(obj: object | Constructor<any>): object {
 export function isPromise(candidate: any) {
     return (candidate && typeof candidate.then === 'function');
 }
+
+/**
+ * Removes one element from the array and returns the removed element.
+ */
+export function removeOneFromArray<T>(array: T[], item: T): T {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === item) {
+            return array.splice(i, 1)[0];
+        }
+    }
+
+    return undefined;
+}

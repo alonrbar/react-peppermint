@@ -1,17 +1,18 @@
 import { ViewModelClassInfo, ViewModelInstanceInfo } from '../info';
-import { IResolver, Method, MethodInvokedEvent, RefreshCallback, ResolverKey } from '../types';
-import { defineProperties, DescriptorType, getMethods, isPromise } from '../utils';
+import { IResolver, Method, MethodInvokedEvent, ResolverKey } from '../types';
+import { defineProperties, DescriptorType, getMethods, isPromise, removeOneFromArray } from '../utils';
 
 export class VmResolver implements IResolver {
 
     public onMethodInvoked: (e: MethodInvokedEvent) => void;
 
     public readonly internalResolver: IResolver;
-    private readonly refreshAll: RefreshCallback;
+    private readonly viewsByViewModel = new Map<any, Set<React.Component>>();
+    private allViews: React.Component[] = [];
 
-    constructor(internalContainer: IResolver, refreshAll: RefreshCallback) {
+    constructor(internalContainer: IResolver, rootComponent: React.Component) {
         this.internalResolver = internalContainer;
-        this.refreshAll = refreshAll;
+        this.allViews.push(rootComponent);
     }
 
     public get<T>(key: ResolverKey<T>): T {
@@ -33,12 +34,14 @@ export class VmResolver implements IResolver {
         return instance;
     }
 
-    private patchViewModel(vm: any, vmClassInfo: ViewModelClassInfo) {
+    private patchViewModel(vm: any, vmClassInfo: ViewModelClassInfo): void {
 
         // set vm symbols
         const vmInstanceInfo = ViewModelInstanceInfo.initInfo(vm);
         vmInstanceInfo.activate = vmClassInfo.activate;
         vmInstanceInfo.deactivate = vmClassInfo.deactivate;
+        vmInstanceInfo.addView = (view: React.Component) => this.addView(vm, view);
+        vmInstanceInfo.removeView = (view: React.Component) => this.removeView(vm, view);
 
         //
         // define methods and properties directly on the vm instance (they
@@ -53,11 +56,37 @@ export class VmResolver implements IResolver {
         // patch and define methods
         const vmMethods = getMethods(vm);
         for (const methodName of Object.keys(vmMethods)) {
-            this.patchMethod(vm, vmClassInfo, vmInstanceInfo, methodName);
+            this.patchMethod(vm, vmClassInfo, methodName);
         }
     }
 
-    private patchMethod(vm: any, vmClassInfo: ViewModelClassInfo, vmInstanceInfo: ViewModelInstanceInfo, methodName: string) {
+    private addView(vm: any, view: React.Component): void {
+
+        // update viewsByViewModel collection
+        let components = this.viewsByViewModel.get(vm);
+        if (!components) {
+            components = new Set();
+            this.viewsByViewModel.set(vm, components);
+        }
+        components.add(view);
+
+        // update allViews collections
+        this.allViews.push(view);
+    }
+
+    private removeView(vm: any, view: React.Component): void {
+
+        // update viewsByViewModel collection
+        const components = this.viewsByViewModel.get(vm);
+        components.delete(view);
+        if (!components.size)
+            this.viewsByViewModel.delete(vm);
+
+        // update allViews collections
+        removeOneFromArray(this.allViews, view);
+    }
+
+    private patchMethod(vm: any, vmClassInfo: ViewModelClassInfo, methodName: string): void {
 
         const self = this;  // tslint:disable-line:no-this-assignment
         const originalMethod: Method = vm[methodName];
@@ -77,12 +106,12 @@ export class VmResolver implements IResolver {
                 // refresh and return
                 if (isPromise(result) && !anyOptions.immediate) {
                     return result.then((resValue: any) => {
-                        self.refreshView(!!broadcastOptions, vmInstanceInfo);
+                        self.refreshView(!!broadcastOptions, vm);
                         self.notifyMethodInvoked(vm, methodName);
                         return resValue;
                     });
                 } else {
-                    self.refreshView(!!broadcastOptions, vmInstanceInfo);
+                    self.refreshView(!!broadcastOptions, vm);
                     self.notifyMethodInvoked(vm, methodName);
                     return result;
                 }
@@ -98,11 +127,24 @@ export class VmResolver implements IResolver {
         vm[methodName] = finalMethod.bind(vm);
     }
 
-    private refreshView(refreshAll: boolean, vmInstanceInfo: ViewModelInstanceInfo): void {
+    private refreshView(refreshAll: boolean, vm: any): void {
+        let views: React.Component[] | Set<React.Component>;
+
         if (refreshAll) {
-            this.refreshAll();
+            views = this.allViews.slice();
         } else {
-            vmInstanceInfo.refreshView.forEach(refresh => refresh());
+            views = this.viewsByViewModel.get(vm);
+        }
+
+        if (views) {
+            (views as React.Component[]).forEach(component => {
+                // Note that we're updating the wrapping ComponentWithViewModel
+                // component, the actual component may not be updated at all
+                // (depending on it's shouldComponentUpdate result). That's why
+                // we can use forceUpdate instead of setState and spare the
+                // implicit shouldComponentUpdate on the wrapping component.
+                component.forceUpdate();
+            });
         }
     }
 
