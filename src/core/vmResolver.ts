@@ -1,10 +1,11 @@
 import { ViewModelClassInfo, ViewModelInstanceInfo } from '../info';
-import { IResolver, Method, MethodInvokedEvent, ResolverKey } from '../types';
+import { IResolver, Method, MethodInvokeEvent, ResolverKey } from '../types';
 import { defineProperties, DescriptorType, getMethods, isPromise, removeOneFromArray } from '../utils';
 
 export class VmResolver implements IResolver {
 
-    public onMethodInvoked: (e: MethodInvokedEvent) => void;
+    public onMethodInvokeStart: (e: MethodInvokeEvent) => void;
+    public onMethodInvokeEnd: (e: MethodInvokeEvent) => void;
 
     public readonly internalResolver: IResolver;
     private readonly viewsByViewModel = new Map<any, Set<React.Component>>();
@@ -100,19 +101,25 @@ export class VmResolver implements IResolver {
             // patch actions
             finalMethod = function (this: any) {
 
-                // call the original method
-                const result = originalMethod.apply(this, arguments);
+                const args = arguments;
+                const isBroadcast = !!broadcastOptions;
 
-                // refresh and return
+                // notify before
+                self.notifyMethodInvokeStart(vm, methodName, args, isBroadcast);
+
+                // call the original method
+                const result = originalMethod.apply(this, args);
+
+                // refresh, notify after and return
                 if (isPromise(result) && !anyOptions.immediate) {
                     return result.then((resValue: any) => {
-                        self.refreshView(!!broadcastOptions, vm);
-                        self.notifyMethodInvoked(vm, methodName);
+                        self.refreshView(isBroadcast, vm);
+                        self.notifyMethodInvokeEnd(vm, methodName, args, isBroadcast);
                         return resValue;
                     });
                 } else {
-                    self.refreshView(!!broadcastOptions, vm);
-                    self.notifyMethodInvoked(vm, methodName);
+                    self.refreshView(isBroadcast, vm);
+                    self.notifyMethodInvokeEnd(vm, methodName, args, isBroadcast);
                     return result;
                 }
             };
@@ -148,12 +155,26 @@ export class VmResolver implements IResolver {
         }
     }
 
-    private notifyMethodInvoked(vm: any, methodName: string): void {
-        const handler = this.onMethodInvoked;
+    private notifyMethodInvokeStart(vm: any, methodName: string, methodArgs: IArguments, isBroadcast: boolean): void {
+        const handler = this.onMethodInvokeStart;
         if (handler) {
             handler({
                 vm,
-                methodName
+                methodName,
+                methodArgs,
+                isBroadcast
+            });
+        }
+    }
+
+    private notifyMethodInvokeEnd(vm: any, methodName: string, methodArgs: IArguments, isBroadcast: boolean): void {
+        const handler = this.onMethodInvokeEnd;
+        if (handler) {
+            handler({
+                vm,
+                methodName,
+                methodArgs,
+                isBroadcast
             });
         }
     }

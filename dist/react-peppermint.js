@@ -443,17 +443,20 @@ var vmResolver_VmResolver = (function () {
         var finalMethod;
         if (anyOptions) {
             finalMethod = function () {
-                var result = originalMethod.apply(this, arguments);
+                var args = arguments;
+                var isBroadcast = !!broadcastOptions;
+                self.notifyMethodInvokeStart(vm, methodName, args, isBroadcast);
+                var result = originalMethod.apply(this, args);
                 if (isPromise(result) && !anyOptions.immediate) {
                     return result.then(function (resValue) {
-                        self.refreshView(!!broadcastOptions, vm);
-                        self.notifyMethodInvoked(vm, methodName);
+                        self.refreshView(isBroadcast, vm);
+                        self.notifyMethodInvokeEnd(vm, methodName, args, isBroadcast);
                         return resValue;
                     });
                 }
                 else {
-                    self.refreshView(!!broadcastOptions, vm);
-                    self.notifyMethodInvoked(vm, methodName);
+                    self.refreshView(isBroadcast, vm);
+                    self.notifyMethodInvokeEnd(vm, methodName, args, isBroadcast);
                     return result;
                 }
             };
@@ -477,12 +480,25 @@ var vmResolver_VmResolver = (function () {
             });
         }
     };
-    VmResolver.prototype.notifyMethodInvoked = function (vm, methodName) {
-        var handler = this.onMethodInvoked;
+    VmResolver.prototype.notifyMethodInvokeStart = function (vm, methodName, methodArgs, isBroadcast) {
+        var handler = this.onMethodInvokeStart;
         if (handler) {
             handler({
                 vm: vm,
-                methodName: methodName
+                methodName: methodName,
+                methodArgs: methodArgs,
+                isBroadcast: isBroadcast
+            });
+        }
+    };
+    VmResolver.prototype.notifyMethodInvokeEnd = function (vm, methodName, methodArgs, isBroadcast) {
+        var handler = this.onMethodInvokeEnd;
+        if (handler) {
+            handler({
+                vm: vm,
+                methodName: methodName,
+                methodArgs: methodArgs,
+                isBroadcast: isBroadcast
             });
         }
     };
@@ -520,7 +536,8 @@ var Provider_Provider = (function (_super) {
             return;
         }
         this.vmResolver = new vmResolver_VmResolver(this.props.resolver, this);
-        this.vmResolver.onMethodInvoked = this.props.onMethodInvoked;
+        this.vmResolver.onMethodInvokeStart = this.props.onMethodInvokeStart;
+        this.vmResolver.onMethodInvokeEnd = this.props.onMethodInvokeEnd;
     };
     return Provider;
 }(external_react_["PureComponent"]));

@@ -47,7 +47,8 @@ export function broadcast(target: object, propertyKey: string | symbol): void;
 
 export interface ProviderProps {
     resolver: IResolver;
-    onMethodInvoked?: (e: MethodInvokedEvent) => void;
+    onMethodInvokeStart?: (e: MethodInvokeEvent) => void;
+    onMethodInvokeEnd?: (e: MethodInvokeEvent) => void;
 }
 
 export class Provider extends React.PureComponent<ProviderProps> { }
@@ -78,9 +79,11 @@ export interface IResolver {
     get<T>(key: ResolverKey<T>): T;
 }
 
-export interface MethodInvokedEvent {
+export interface MethodInvokeEvent {
     vm: any;
     methodName: string;
+    methodArgs: IArguments;
+    isBroadcast: boolean;
 }
 
 export type ComponentEnhancer<TInjectedProps> = <TRequiredProps>(Component: React.ComponentType<TRequiredProps>) => React.ComponentClass<OmitProps<TRequiredProps, TInjectedProps>>;

@@ -6,9 +6,11 @@ export interface IResolver {
     get<T>(key: ResolverKey<T>): T;
 }
 
-export interface MethodInvokedEvent {
+export interface MethodInvokeEvent {
     vm: any;
     methodName: string;
+    methodArgs: IArguments;
+    isBroadcast: boolean;
 }
 
 export interface Constructor<T> {

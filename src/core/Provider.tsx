@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IResolver, MethodInvokedEvent } from '../types';
+import { IResolver, MethodInvokeEvent } from '../types';
 import { InternalProvider } from './internalContext';
 import { VmResolver } from './vmResolver';
 
@@ -10,7 +10,8 @@ import { VmResolver } from './vmResolver';
 
 export interface ProviderProps {
     resolver: IResolver;
-    onMethodInvoked?: (e: MethodInvokedEvent) => void;
+    onMethodInvokeStart?: (e: MethodInvokeEvent) => void;
+    onMethodInvokeEnd?: (e: MethodInvokeEvent) => void;
 }
 
 export class Provider extends React.PureComponent<ProviderProps> {
@@ -39,6 +40,7 @@ export class Provider extends React.PureComponent<ProviderProps> {
 
         // create (or update) container
         this.vmResolver = new VmResolver(this.props.resolver, this);
-        this.vmResolver.onMethodInvoked = this.props.onMethodInvoked;
+        this.vmResolver.onMethodInvokeStart = this.props.onMethodInvokeStart;
+        this.vmResolver.onMethodInvokeEnd = this.props.onMethodInvokeEnd;
     }
 }
