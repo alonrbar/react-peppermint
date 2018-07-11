@@ -526,10 +526,14 @@ var Provider_Provider = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Provider.prototype.render = function () {
-        this.setContainer();
-        return (external_react_["createElement"](internalContext_Provider, { value: { resolver: this.vmResolver } }, this.props.children));
+        this.setResolver();
+        return (external_react_["createElement"](internalContext_Provider, { value: {
+                resolver: this.vmResolver,
+                onMethodInvokeStart: this.props.onMethodInvokeStart,
+                onMethodInvokeEnd: this.props.onMethodInvokeEnd
+            } }, this.props.children));
     };
-    Provider.prototype.setContainer = function () {
+    Provider.prototype.setResolver = function () {
         if (!this.props.resolver)
             return;
         if (this.vmResolver && this.vmResolver.internalResolver === this.props.resolver) {
@@ -572,53 +576,82 @@ var withViewModel = function (VmClass) { return function (Component) {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         ComponentWithViewModel.prototype.componentDidMount = function () {
-            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
-            var activateKey = vmInfo.activate;
-            if (activateKey) {
-                var activateMethod = this.vm[activateKey];
-                if (typeof activateMethod === 'function') {
-                    if (true) {
-                        console.log("[" + this.vm.constructor.name + "] activate");
-                    }
-                    activateMethod();
-                }
-            }
+            this.activate();
         };
         ComponentWithViewModel.prototype.render = function () {
             var _this = this;
             return (external_react_["createElement"](Consumer, null, function (context) {
-                if (!context)
-                    throw new Error('Context not found. Make sure you use the Provider component.');
-                if (!context.resolver)
-                    throw new Error('Resolver not found. Make sure you use the Provider component.');
-                _this.setVm(context.resolver);
+                _this.init(context);
                 var componentProps = Object.assign({}, _this.vm, _this.props);
                 return external_react_["createElement"](Component, __assign({}, componentProps));
             }));
         };
         ComponentWithViewModel.prototype.componentWillUnmount = function () {
+            this.deactivate();
+        };
+        ComponentWithViewModel.prototype.init = function (context) {
+            if (this.vm)
+                return;
+            if (!context)
+                throw new Error('Context not found. Make sure you use the Provider component.');
+            if (!context.resolver)
+                throw new Error('Resolver not found. Make sure you use the Provider component.');
+            this.vm = context.resolver.get(VmClass);
+            this.onMethodInvokeStart = context.onMethodInvokeStart;
+            this.onMethodInvokeEnd = context.onMethodInvokeEnd;
+            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
+            if (!vmInfo)
+                throw new Error("Class " + this.vm.constructor.name + " is used as a view-model but no decorator was used.");
+            vmInfo.addView(this);
+        };
+        ComponentWithViewModel.prototype.activate = function () {
+            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
+            var activateKey = vmInfo.activate;
+            if (activateKey) {
+                var activateMethod = this.vm[activateKey];
+                if (typeof activateMethod === 'function') {
+                    this.notifyMethodInvokeStart(this.vm, activateKey);
+                    activateMethod();
+                    this.notifyMethodInvokeEnd(this.vm, activateKey);
+                }
+            }
+        };
+        ComponentWithViewModel.prototype.deactivate = function () {
             var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
             vmInfo.removeView(this);
             var deactivateKey = vmInfo.deactivate;
             if (deactivateKey) {
                 var deactivateMethod = this.vm[deactivateKey];
                 if (typeof deactivateMethod === 'function') {
-                    if (true) {
-                        console.log("[" + this.vm.constructor.name + "] deactivate");
-                    }
+                    this.notifyMethodInvokeStart(this.vm, deactivateKey);
                     deactivateMethod();
+                    this.notifyMethodInvokeEnd(this.vm, deactivateKey);
                 }
             }
         };
-        ComponentWithViewModel.prototype.setVm = function (resolver) {
-            if (this.vm)
-                return;
-            this.vm = resolver.get(VmClass);
-            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
-            if (!vmInfo) {
-                throw new Error("Class " + this.vm.constructor.name + " is used as a view-model but no decorator was used.");
+        ComponentWithViewModel.prototype.notifyMethodInvokeStart = function (vm, methodName, methodArgs, isBroadcast) {
+            if (isBroadcast === void 0) { isBroadcast = false; }
+            var handler = this.onMethodInvokeStart;
+            if (handler) {
+                handler({
+                    vm: vm,
+                    methodName: methodName,
+                    methodArgs: methodArgs,
+                    isBroadcast: isBroadcast
+                });
             }
-            vmInfo.addView(this);
+        };
+        ComponentWithViewModel.prototype.notifyMethodInvokeEnd = function (vm, methodName, methodArgs, isBroadcast) {
+            if (isBroadcast === void 0) { isBroadcast = false; }
+            var handler = this.onMethodInvokeEnd;
+            if (handler) {
+                handler({
+                    vm: vm,
+                    methodName: methodName,
+                    methodArgs: methodArgs,
+                    isBroadcast: isBroadcast
+                });
+            }
         };
         return ComponentWithViewModel;
     }(external_react_["PureComponent"]));

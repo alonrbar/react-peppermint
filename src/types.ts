@@ -8,7 +8,7 @@ export interface IResolver {
 
 export interface MethodInvokeEvent {
     vm: any;
-    methodName: string;
+    methodName: string | symbol;
     methodArgs: IArguments;
     isBroadcast: boolean;
 }

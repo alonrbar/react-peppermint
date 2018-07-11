@@ -2,9 +2,12 @@
 
 ## [Unreleased](https://github.com/alonrbar/react-peppermint)
 
+## [0.3.0 - 2018-07-11](https://github.com/alonrbar/react-peppermint/tree/v0.3.0)
+
 ### Added
 
 - Update typings.
+- Raise event instead of log on activate and deactivate.
 
 ## [0.2.0 - 2018-06-21](https://github.com/alonrbar/react-peppermint/tree/v0.2.0)
 

@@ -19,26 +19,36 @@ export class Provider extends React.PureComponent<ProviderProps> {
     private vmResolver: VmResolver;
 
     public render() {
-        this.setContainer();
+
+        // init the resolver
+        this.setResolver();
+
+        // delegate rest of work to React's Provider
         return (
-            <InternalProvider value={{ resolver: this.vmResolver }}>
+            <InternalProvider
+                value={{
+                    resolver: this.vmResolver,
+                    onMethodInvokeStart: this.props.onMethodInvokeStart,
+                    onMethodInvokeEnd: this.props.onMethodInvokeEnd
+                }}
+            >
                 {this.props.children}
             </InternalProvider>
         );
     }
 
-    private setContainer() {
+    private setResolver() {
 
-        // can't set container
+        // can't set resolver
         if (!this.props.resolver)
             return;
 
-        // container already exists
+        // resolver already exists
         if (this.vmResolver && this.vmResolver.internalResolver === this.props.resolver) {
             return;
         }
 
-        // create (or update) container
+        // create (or update) resolver
         this.vmResolver = new VmResolver(this.props.resolver, this);
         this.vmResolver.onMethodInvokeStart = this.props.onMethodInvokeStart;
         this.vmResolver.onMethodInvokeEnd = this.props.onMethodInvokeEnd;
