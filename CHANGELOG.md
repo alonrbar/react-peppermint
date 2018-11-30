@@ -4,6 +4,10 @@
 
 ## [1.0.0 - 2018-12-01](https://github.com/alonrbar/react-peppermint/tree/v1.0.0)
 
+### Added
+
+- Publish to npm.
+
 ### Changed
 
 - Set display name of withViewModel HOC.
