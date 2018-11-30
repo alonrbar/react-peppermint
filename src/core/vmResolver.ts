@@ -43,9 +43,7 @@ export class VmResolver implements IResolver {
     private patchViewModel(vm: any, vmClassInfo: VmClassInfo): void {
 
         // set vm symbols
-        const vmContext = VmContext.initContext(vm, vmClassInfo, this.viewRefresher);
-        vmContext.onMethodInvokeStart = this.onMethodInvokeStart;
-        vmContext.onMethodInvokeEnd = this.onMethodInvokeEnd;
+        VmContext.initContext(vm, vmClassInfo, this.viewRefresher);
 
         //
         // define methods and properties directly on the vm instance (they
@@ -70,7 +68,10 @@ export class VmResolver implements IResolver {
         const originalMethod: Method = vm[methodName];
         const actionOptions = vmClassInfo.actions[methodName];
         const broadcastOptions = vmClassInfo.broadcasts[methodName];
-        const shouldPatch = (actionOptions || broadcastOptions);
+        const activateOptions = vmClassInfo.activate[methodName];
+        const deactivateOptions = vmClassInfo.deactivate[methodName];
+        const anyOptions = (actionOptions || broadcastOptions || activateOptions || deactivateOptions);
+        const shouldPatch = !!anyOptions;
 
         let finalMethod: Method;
         if (shouldPatch) {
@@ -88,13 +89,20 @@ export class VmResolver implements IResolver {
                 // call the original method
                 const result = originalMethod.apply(this, args);
 
-                // refresh, notify after, return
-                const afterOriginalInvoked = (resValue: any) => {
-                    self.viewRefresher.refreshViews(isBroadcast, vm);
+                const afterOriginalInvoked = (res: any) => {
+
+                    // refresh view
+                    if (!deactivateOptions) {
+                        self.viewRefresher.refreshViews(isBroadcast, vm);
+                    }
+
+                    // notify
                     tryInvoke(self.onMethodInvokeEnd, invokeEventArgs);
-                    return resValue;
+                    return res;
                 };
-                if (isPromise(result) && !shouldPatch.immediate) {
+
+                // return
+                if (isPromise(result) && !anyOptions.immediate) {
                     return result.then(afterOriginalInvoked);
                 } else {
                     return afterOriginalInvoked(result);

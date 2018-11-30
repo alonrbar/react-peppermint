@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { createMethodInvokeArgs, ResolverKey } from '../types';
-import { tryInvoke } from '../utils';
+import { ResolverKey } from '../types';
 import { InternalConsumer, InternalContext } from './internalContext';
 import { VmContext } from './vmContext';
 
@@ -8,7 +7,7 @@ import { VmContext } from './vmContext';
 
 export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.ComponentType) => {
 
-    return class ComponentWithViewModel extends React.PureComponent {
+    class ComponentWithViewModel extends React.PureComponent {
 
         //
         // properties
@@ -67,15 +66,15 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
 
         private activate() {
             const vmContext = VmContext.getContext(this.vm);
-            this.invokeMethod(vmContext.activateKey, vmContext);
+            this.invokeMethod(vmContext.activateKey);
         }
 
         private deactivate() {
             const vmContext = VmContext.getContext(this.vm);
-            this.invokeMethod(vmContext.deactivateKey, vmContext);
+            this.invokeMethod(vmContext.deactivateKey);
         }
 
-        private invokeMethod(methodName: string | symbol, vmContext: VmContext) {
+        private invokeMethod(methodName: string | symbol) {
             if (!methodName)
                 return;
 
@@ -83,15 +82,12 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
             if (typeof method !== 'function')
                 return;
 
-            // notify before
-            const invokeEventArgs = createMethodInvokeArgs(this.vm, methodName, [] as any, false);
-            tryInvoke(vmContext.onMethodInvokeStart, invokeEventArgs);
-
-            // invoke
             method();
-
-            // notify after
-            tryInvoke(vmContext.onMethodInvokeEnd, invokeEventArgs);
         }
-    };
+    }
+
+    // set HOC display name
+    const originalDisplayName = Component.displayName || Component.name || 'Component';
+    (ComponentWithViewModel as React.ComponentType).displayName = `WithViewModel(${originalDisplayName})`;
+    return ComponentWithViewModel;
 };

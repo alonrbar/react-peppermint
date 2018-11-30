@@ -11,35 +11,37 @@ import * as React from 'react';
  */
 export function viewModel(ctor: Function): any;
 
+export type ActionDecorator =
+    | ((options: ActionOptions) => PropertyDecorator)
+    | PropertyDecorator;
+
 /**
  * Method decorator.
  * 
  * Mark this method to be run on componentDidMount.
  */
-export function activate(target: object, propertyKey: string | symbol): void;
+export const activate: ActionDecorator;
 
 /**
  * Method decorator.
  * 
  * Mark this method to be run on componentWillUnmount.
  */
-export function deactivate(target: object, propertyKey: string | symbol): void;
+export const deactivate: ActionDecorator;
 
 /**
  * Method decorator.
  * 
  * Mark this method as a view refresher.
  */
-export function action(options: ActionOptions): PropertyDecorator;
-export function action(target: object, propertyKey: string | symbol): void;
+export const action: ActionDecorator;
 
 /**
  * Method decorator.
  * 
  * Mark this method as an all-view refresher.
  */
-export function broadcast(options: ActionOptions): PropertyDecorator;
-export function broadcast(target: object, propertyKey: string | symbol): void;
+export const broadcast: ActionDecorator;
 
 //
 // components
@@ -69,10 +71,12 @@ export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnh
 export class ActionOptions {
 
     /**
-     * By default if the method result is a promise the action will be invoked
+     * By default if the method result is a promise the view will be refreshed
      * only after the promise is resolved. Set this flag to `true` to skip the
-     * wait for the promise.
-     * 
+     * wait for the promise.  
+     * Note that this flag also affects the time when the onMethodInvokeEnd event is
+     * raised.
+     *
      * Default: `false`
      */
     public immediate?: boolean;

@@ -78,8 +78,8 @@ export class VmClassInfo {
     // instance members
     //
 
-    public activate: string | symbol;
-    public deactivate: string | symbol;
+    public activate: IMap<ActionOptions> = {};
+    public deactivate: IMap<ActionOptions> = {};
     public actions: IMap<ActionOptions> = {};
     public broadcasts: IMap<ActionOptions> = {};
 }

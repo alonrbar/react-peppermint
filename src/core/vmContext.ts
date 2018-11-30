@@ -1,5 +1,4 @@
 import { getSymbol, setSymbol, VM_CONTEXT } from '../symbols';
-import { MethodInvokeEvent } from '../types';
 import { ViewRefresher } from './viewRefresher';
 import { VmClassInfo } from './vmClassInfo';
 
@@ -17,9 +16,6 @@ export class VmContext {
         return setSymbol(vm, VM_CONTEXT, info);
     }
 
-    public onMethodInvokeStart: (e: MethodInvokeEvent) => void;
-    public onMethodInvokeEnd: (e: MethodInvokeEvent) => void;
-    
     public readonly activateKey: string | symbol;
     public readonly deactivateKey: string | symbol;
     public readonly registerView: (view: React.Component) => void;

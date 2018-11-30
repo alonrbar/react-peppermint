@@ -1,26 +1,8 @@
-import { VmClassInfo } from "../core/vmClassInfo";
-import { ActionOptions } from "../options";
+import { createActionDecorator } from './createActionDecorator';
 
 /**
  * Method decorator.
  * 
  * Mark this method as a view refresher.
  */
-export function action(options: ActionOptions): PropertyDecorator;
-export function action(target: object, propertyKey: string | symbol): void;
-export function action(targetOrOptions: any, propertyKeyOrNothing?: string | symbol): any {
-    if (propertyKeyOrNothing) {
-
-        // call with default options
-        actionDecorator.call(undefined, targetOrOptions, propertyKeyOrNothing);
-    } else {
-
-        // call with custom options
-        return (target: object, propertyKey: string | symbol) => actionDecorator(target, propertyKey, targetOrOptions);
-    }
-}
-
-function actionDecorator(target: object, propertyKey: string | symbol, options?: ActionOptions): void {
-    const info = VmClassInfo.getOrInitInfo(target);
-    info.actions[propertyKey as any] = new ActionOptions(options);
-}
+export const action = createActionDecorator('actions');
