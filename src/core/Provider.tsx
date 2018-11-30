@@ -25,13 +25,7 @@ export class Provider extends React.PureComponent<ProviderProps> {
 
         // delegate rest of work to React's Provider
         return (
-            <InternalProvider
-                value={{
-                    resolver: this.vmResolver,
-                    onMethodInvokeStart: this.props.onMethodInvokeStart,
-                    onMethodInvokeEnd: this.props.onMethodInvokeEnd
-                }}
-            >
+            <InternalProvider value={{ resolver: this.vmResolver }}>
                 {this.props.children}
             </InternalProvider>
         );

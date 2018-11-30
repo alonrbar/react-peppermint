@@ -47,7 +47,14 @@ export function broadcast(target: object, propertyKey: string | symbol): void;
 
 export interface ProviderProps {
     resolver: IResolver;
+    /**
+     * This event handler is invoked before a view-model method is invoked.
+     */
     onMethodInvokeStart?: (e: MethodInvokeEvent) => void;
+    /**
+     * This event handler is invoked after a view-model method was invoked and
+     * the relevant views were refreshed.  
+     */
     onMethodInvokeEnd?: (e: MethodInvokeEvent) => void;
 }
 
@@ -63,10 +70,12 @@ export class ActionOptions {
 
     /**
      * By default if the method result is a promise the action will be invoked
-     * only after the promise is resolved. Set this flag to 'true' to skip the
+     * only after the promise is resolved. Set this flag to `true` to skip the
      * wait for the promise.
+     * 
+     * Default: `false`
      */
-    public immediate: boolean;
+    public immediate?: boolean;
 }
 
 //
@@ -93,11 +102,3 @@ export type OmitProps<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
 export interface Constructor<T> {
     new(...args: any[]): T;
 }
-
-export interface IMap<T> {
-    [key: string]: T;
-}
-
-export type Method = Function;
-
-export type RefreshCallback = () => void;

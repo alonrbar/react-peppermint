@@ -1,4 +1,4 @@
-import { ViewModelClassInfo } from "../info";
+import { VmClassInfo } from "../core/vmClassInfo";
 import { ActionOptions } from "../options";
 
 /**
@@ -21,6 +21,6 @@ export function action(targetOrOptions: any, propertyKeyOrNothing?: string | sym
 }
 
 function actionDecorator(target: object, propertyKey: string | symbol, options?: ActionOptions): void {
-    const info = ViewModelClassInfo.getOrInitInfo(target);
-    info.action[propertyKey as any] = new ActionOptions(options);
+    const info = VmClassInfo.getOrInitInfo(target);
+    info.actions[propertyKey as any] = new ActionOptions(options);
 }

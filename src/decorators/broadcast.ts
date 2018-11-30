@@ -1,4 +1,4 @@
-import { ViewModelClassInfo } from "../info";
+import { VmClassInfo } from "../core/vmClassInfo";
 import { ActionOptions } from "../options";
 
 /**
@@ -21,6 +21,6 @@ export function broadcast(targetOrOptions: any, propertyKeyOrNothing?: string | 
 }
 
 function broadcastDecorator(target: object, propertyKey: string | symbol, options?: ActionOptions): void {
-    const info = ViewModelClassInfo.getOrInitInfo(target);
-    info.broadcast[propertyKey as any] = new ActionOptions(options);
+    const info = VmClassInfo.getOrInitInfo(target);
+    info.broadcasts[propertyKey as any] = new ActionOptions(options);
 }

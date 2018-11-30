@@ -1,4 +1,4 @@
-import { ViewModelClassInfo } from "../info";
+import { VmClassInfo } from "../core/vmClassInfo";
 
 /**
  * Method decorator.
@@ -6,6 +6,6 @@ import { ViewModelClassInfo } from "../info";
  * Mark this method to be run on componentWillUnmount.
  */
 export function deactivate(target: object, propertyKey: string | symbol): void {
-    const info = ViewModelClassInfo.getOrInitInfo(target);
+    const info = VmClassInfo.getOrInitInfo(target);
     info.deactivate = propertyKey;
 }

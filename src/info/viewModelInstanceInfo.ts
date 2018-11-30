@@ -1,24 +1,34 @@
-import { getSymbol, setSymbol, VIEW_MODEL_INSTANCE_INFO } from '../symbols';
+import { getSymbol, setSymbol, VM_CONTEXT } from '../symbols';
+import { MethodInvokeEvent } from '../types';
+import { ViewRefresher } from './viewRefresher';
+import { VmClassInfo } from './vmClassInfo';
 
-/**
- * Metadata stored on every view-model instance.
- */
-export class ViewModelInstanceInfo {
+export class VmContext {
 
-    public static getInfo(vm: any): ViewModelInstanceInfo {
+    public static getContext(vm: any): VmContext {
         if (!vm)
             return undefined;
 
-        return getSymbol(vm, VIEW_MODEL_INSTANCE_INFO);
+        return getSymbol(vm, VM_CONTEXT);
     }
 
-    public static initInfo(vm: any): ViewModelInstanceInfo {
-        const info = new ViewModelInstanceInfo();
-        return setSymbol(vm, VIEW_MODEL_INSTANCE_INFO, info);
+    public static initContext(vm: any, vmClassInfo: VmClassInfo, viewRefresher: ViewRefresher): VmContext {
+        const info = new VmContext(vm, vmClassInfo, viewRefresher);
+        return setSymbol(vm, VM_CONTEXT, info);
     }
 
-    public activate: string | symbol;
-    public deactivate: string | symbol;
-    public addView: (view: React.Component) => void;
-    public removeView: (view: React.Component) => void;
+    public onMethodInvokeStart: (e: MethodInvokeEvent) => void;
+    public onMethodInvokeEnd: (e: MethodInvokeEvent) => void;
+    
+    public readonly activateKey: string | symbol;
+    public readonly deactivateKey: string | symbol;
+    public readonly registerView: (view: React.Component) => void;
+    public readonly unregisterView: (view: React.Component) => void;    
+
+    constructor(vm: any, vmClassInfo: VmClassInfo, viewRefresher: ViewRefresher) {
+        this.activateKey = vmClassInfo.activate;
+        this.deactivateKey = vmClassInfo.deactivate;
+        this.registerView = (view: React.Component) => viewRefresher.registerView(vm, view);
+        this.unregisterView = (view: React.Component) => viewRefresher.unregisterView(vm, view);
+    }
 }

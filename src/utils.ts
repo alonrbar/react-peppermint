@@ -1,5 +1,5 @@
 import { isSymbol } from './symbols';
-import { Constructor, IMap, Method } from './types';
+import { Constructor, Func, IMap, Method } from './types';
 
 export enum DescriptorType {
     None = "None",
@@ -143,6 +143,13 @@ export function removeOneFromArray<T>(array: T[], item: T): T {
             return array.splice(i, 1)[0];
         }
     }
+
+    return undefined;
+}
+
+export function tryInvoke<TIn, TOut>(func: Func<TIn, TOut>, ...args: TIn[]): TOut {
+    if (typeof func === 'function')
+        return func(...args);
 
     return undefined;
 }

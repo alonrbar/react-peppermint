@@ -1,4 +1,4 @@
-import { ViewModelClassInfo } from "../info";
+import { VmClassInfo } from "../core/vmClassInfo";
 
 // tslint:disable:ban-types
 
@@ -8,5 +8,5 @@ import { ViewModelClassInfo } from "../info";
  * Mark this class as a view-model class.
  */
 export function viewModel(ctor: Function): any {
-    ViewModelClassInfo.getOrInitInfo(ctor);
+    VmClassInfo.getOrInitInfo(ctor);
 }

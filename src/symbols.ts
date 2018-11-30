@@ -18,8 +18,8 @@ export function getOwnSymbol(obj: any, symbol: symbol): any {
 /**
  * Stored on view-model instances.
  */
-export const VIEW_MODEL_INSTANCE_INFO = Symbol('REACT-VIEW-MODEL.INSTANCE_INFO');
+export const VM_CONTEXT = Symbol('REACT-PEPPERMINT.VM_CONTEXT');
 /**
  * Stored on view-model class constructors.
  */
-export const VIEW_MODEL_CLASS_INFO = Symbol('REACT-VIEW-MODEL.CLASS_INFO');
+export const VM_CLASS_INFO = Symbol('REACT-PEPPERMINT.VM_CLASS_INFO');
