@@ -1,9 +1,10 @@
 import { VmClassInfo } from "../core/vmClassInfo";
 import { ActionOptions } from "../options";
 
-export type ActionDecorator =
-    | ((options: ActionOptions) => PropertyDecorator)
-    | PropertyDecorator;
+export interface ActionDecorator {
+    (options: ActionOptions): PropertyDecorator;
+    (target: object, propertyKey: string | symbol): void;
+}
 
 export function createActionDecorator(key: keyof VmClassInfo): ActionDecorator {
 

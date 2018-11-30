@@ -11,9 +11,10 @@ import * as React from 'react';
  */
 export function viewModel(ctor: Function): any;
 
-export type ActionDecorator =
-    | ((options: ActionOptions) => PropertyDecorator)
-    | PropertyDecorator;
+export interface ActionDecorator {
+    (options: ActionOptions): PropertyDecorator;
+    (target: object, propertyKey: string | symbol): void;
+}
 
 /**
  * Method decorator.
