@@ -66,23 +66,27 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
 
         private activate() {
             const vmContext = VmContext.getContext(this.vm);
-            this.invokeMethod(vmContext.activateKey);
+            this.invokeMethods(Object.keys(vmContext.activate || {}));
         }
 
         private deactivate() {
+
+            // remove registration
             const vmContext = VmContext.getContext(this.vm);
-            this.invokeMethod(vmContext.deactivateKey);
+            vmContext.unregisterView(this);
+
+            // invoke deactivate life cycle method
+            this.invokeMethods(Object.keys(vmContext.deactivate || {}));
         }
 
-        private invokeMethod(methodName: string | symbol) {
-            if (!methodName)
-                return;
+        private invokeMethods(methodNames: string[]) {
+            for (const name of methodNames) {
+                const method = this.vm[name];
+                if (typeof method !== 'function')
+                    return;
 
-            const method = this.vm[methodName];
-            if (typeof method !== 'function')
-                return;
-
-            method();
+                method();
+            }
         }
     }
 

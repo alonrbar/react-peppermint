@@ -16,14 +16,14 @@ export class VmContext {
         return setSymbol(vm, VM_CONTEXT, info);
     }
 
-    public readonly activateKey: string | symbol;
-    public readonly deactivateKey: string | symbol;
+    public activate: object = {};
+    public deactivate: object = {};
     public readonly registerView: (view: React.Component) => void;
     public readonly unregisterView: (view: React.Component) => void;    
 
     constructor(vm: any, vmClassInfo: VmClassInfo, viewRefresher: ViewRefresher) {
-        this.activateKey = vmClassInfo.activate;
-        this.deactivateKey = vmClassInfo.deactivate;
+        this.activate = vmClassInfo.activate;
+        this.deactivate = vmClassInfo.deactivate;
         this.registerView = (view: React.Component) => viewRefresher.registerView(vm, view);
         this.unregisterView = (view: React.Component) => viewRefresher.unregisterView(vm, view);
     }
