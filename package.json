@@ -1,7 +1,7 @@
 {
   "name": "react-peppermint",
-  "version": "0.3.0",
-  "description": "Keep your view fresh 🌿 with React Peppermint - a light weight view-model library for React and TypeScript.",
+  "version": "1.0.0",
+  "description": "Light weight view-model library for React and TypeScript that leverages dependency injection and keeps your view fresh 🌿",
   "keywords": [
     "react",
     "typescript",
@@ -28,14 +28,13 @@
     "src"
   ],
   "scripts": {
-    "example": "webpack-dev-server --config webpack.example.js --watch",
     "dev": "webpack --config webpack.dev.js --watch",
+    "release": "yarn lint && webpack --config webpack.dev.js && webpack --config webpack.release.js",
     "compile": "tsc",
     "lint": "npm run lint-lint --silent",
     "lint-lint": "tslint \"./{src,test}/**/*.ts\" --exclude \"./**/*.d.ts\"",
     "test": "mocha-webpack --require source-map-support/register --webpack-config webpack.test.js \"test/**/*.tests.ts\"",
-    "test-watch": "yarn test --watch",
-    "release": "yarn lint && webpack --config webpack.dev.js && webpack --config webpack.release.js"
+    "test-watch": "yarn test --watch"
   },
   "dependencies": {
     "react": "^16.4.1",

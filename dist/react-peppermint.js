@@ -98,9 +98,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ "./src/index.ts":
 /*!***********************************!*\
-  !*** ./src/index.ts + 17 modules ***!
+  !*** ./src/index.ts + 19 modules ***!
   \***********************************/
-/*! exports provided: ActionOptions, action, activate, broadcast, deactivate, viewModel, Provider, withViewModel */
+/*! exports provided: ActionOptions, createMethodInvokeArgs, action, activate, broadcast, deactivate, viewModel, Provider, withViewModel */
 /*! ModuleConcatenation bailout: Cannot concat with external "react" (<- Module is not an ECMAScript module) */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -119,8 +119,8 @@ function getSymbol(obj, symbol) {
 function getOwnSymbol(obj, symbol) {
     return Object.getOwnPropertySymbols(obj).includes(symbol) && getSymbol(obj, symbol);
 }
-var VIEW_MODEL_INSTANCE_INFO = Symbol('REACT-VIEW-MODEL.INSTANCE_INFO');
-var VIEW_MODEL_CLASS_INFO = Symbol('REACT-VIEW-MODEL.CLASS_INFO');
+var VM_CONTEXT = Symbol('REACT-PEPPERMINT.VM_CONTEXT');
+var VM_CLASS_INFO = Symbol('REACT-PEPPERMINT.VM_CLASS_INFO');
 
 // CONCATENATED MODULE: ./src/utils.ts
 
@@ -231,79 +231,68 @@ function removeOneFromArray(array, item) {
     }
     return undefined;
 }
-
-// CONCATENATED MODULE: ./src/info/viewModelClassInfo.ts
-
-
-var viewModelClassInfo_ViewModelClassInfo = (function () {
-    function ViewModelClassInfo() {
-        this.action = {};
-        this.broadcast = {};
+function tryInvoke(func) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
     }
-    ViewModelClassInfo.getInfo = function (obj) {
+    if (typeof func === 'function')
+        return func.apply(void 0, args);
+    return undefined;
+}
+
+// CONCATENATED MODULE: ./src/core/vmClassInfo.ts
+
+
+var vmClassInfo_VmClassInfo = (function () {
+    function VmClassInfo() {
+        this.activate = {};
+        this.deactivate = {};
+        this.actions = {};
+        this.broadcasts = {};
+    }
+    VmClassInfo.getInfo = function (obj) {
         if (!obj)
             return undefined;
-        var ownInfo = ViewModelClassInfo.getOwnInfo(obj);
+        var ownInfo = VmClassInfo.getOwnInfo(obj);
         if (ownInfo)
             return ownInfo;
-        var baseInfo = ViewModelClassInfo.getBaseInfo(obj);
+        var baseInfo = VmClassInfo.getBaseInfo(obj);
         if (baseInfo)
-            return ViewModelClassInfo.initInfo(obj);
+            return VmClassInfo.initInfo(obj);
         return undefined;
     };
-    ViewModelClassInfo.getOrInitInfo = function (obj) {
-        var info = ViewModelClassInfo.getInfo(obj);
+    VmClassInfo.getOrInitInfo = function (obj) {
+        var info = VmClassInfo.getInfo(obj);
         if (info)
             return info;
-        return ViewModelClassInfo.initInfo(obj);
+        return VmClassInfo.initInfo(obj);
     };
-    ViewModelClassInfo.getOwnInfo = function (obj) {
+    VmClassInfo.getOwnInfo = function (obj) {
         if (typeof obj === 'object') {
-            return getConstructorOwnProp(obj, VIEW_MODEL_CLASS_INFO);
+            return getConstructorOwnProp(obj, VM_CLASS_INFO);
         }
         else {
-            return getOwnSymbol(obj, VIEW_MODEL_CLASS_INFO);
+            return getOwnSymbol(obj, VM_CLASS_INFO);
         }
     };
-    ViewModelClassInfo.getBaseInfo = function (obj) {
+    VmClassInfo.getBaseInfo = function (obj) {
         if (typeof obj === 'object') {
-            return getConstructorProp(obj, VIEW_MODEL_CLASS_INFO);
+            return getConstructorProp(obj, VM_CLASS_INFO);
         }
         else {
-            return getSymbol(obj, VIEW_MODEL_CLASS_INFO);
+            return getSymbol(obj, VM_CLASS_INFO);
         }
     };
-    ViewModelClassInfo.initInfo = function (obj) {
+    VmClassInfo.initInfo = function (obj) {
         var isConstructor = (typeof obj === 'function' ? true : false);
         var target = (isConstructor ? obj : obj.constructor);
-        var baseInfo = getSymbol(target, VIEW_MODEL_CLASS_INFO);
-        var selfInfo = Object.assign(new ViewModelClassInfo(), baseInfo);
-        return setSymbol(target, VIEW_MODEL_CLASS_INFO, selfInfo);
+        var baseInfo = getSymbol(target, VM_CLASS_INFO);
+        var selfInfo = Object.assign(new VmClassInfo(), baseInfo);
+        return setSymbol(target, VM_CLASS_INFO, selfInfo);
     };
-    return ViewModelClassInfo;
+    return VmClassInfo;
 }());
-
-
-// CONCATENATED MODULE: ./src/info/viewModelInstanceInfo.ts
-
-var viewModelInstanceInfo_ViewModelInstanceInfo = (function () {
-    function ViewModelInstanceInfo() {
-    }
-    ViewModelInstanceInfo.getInfo = function (vm) {
-        if (!vm)
-            return undefined;
-        return getSymbol(vm, VIEW_MODEL_INSTANCE_INFO);
-    };
-    ViewModelInstanceInfo.initInfo = function (vm) {
-        var info = new ViewModelInstanceInfo();
-        return setSymbol(vm, VIEW_MODEL_INSTANCE_INFO, info);
-    };
-    return ViewModelInstanceInfo;
-}());
-
-
-// CONCATENATED MODULE: ./src/info/index.ts
-
 
 
 // CONCATENATED MODULE: ./src/options.ts
@@ -316,56 +305,44 @@ var ActionOptions = (function () {
 }());
 
 
+// CONCATENATED MODULE: ./src/decorators/createActionDecorator.ts
+
+
+function createActionDecorator(key) {
+    return function (targetOrOptions, propertyKeyOrNothing) {
+        if (propertyKeyOrNothing) {
+            actionDecorator.call(undefined, targetOrOptions, propertyKeyOrNothing);
+        }
+        else {
+            return function (target, propertyKey) { return actionDecorator(target, propertyKey, targetOrOptions); };
+        }
+    };
+    function actionDecorator(target, propertyKey, options) {
+        var info = vmClassInfo_VmClassInfo.getOrInitInfo(target);
+        info[key][propertyKey] = new ActionOptions(options);
+    }
+}
+
 // CONCATENATED MODULE: ./src/decorators/action.ts
 
-
-function action(targetOrOptions, propertyKeyOrNothing) {
-    if (propertyKeyOrNothing) {
-        actionDecorator.call(undefined, targetOrOptions, propertyKeyOrNothing);
-    }
-    else {
-        return function (target, propertyKey) { return actionDecorator(target, propertyKey, targetOrOptions); };
-    }
-}
-function actionDecorator(target, propertyKey, options) {
-    var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
-    info.action[propertyKey] = new ActionOptions(options);
-}
+var action = createActionDecorator('actions');
 
 // CONCATENATED MODULE: ./src/decorators/activate.ts
 
-function activate(target, propertyKey) {
-    var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
-    info.activate = propertyKey;
-}
+var activate = createActionDecorator('activate');
 
 // CONCATENATED MODULE: ./src/decorators/broadcast.ts
 
-
-function broadcast(targetOrOptions, propertyKeyOrNothing) {
-    if (propertyKeyOrNothing) {
-        broadcastDecorator.call(undefined, targetOrOptions, propertyKeyOrNothing);
-    }
-    else {
-        return function (target, propertyKey) { return broadcastDecorator(target, propertyKey, targetOrOptions); };
-    }
-}
-function broadcastDecorator(target, propertyKey, options) {
-    var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
-    info.broadcast[propertyKey] = new ActionOptions(options);
-}
+var broadcast = createActionDecorator('broadcasts');
 
 // CONCATENATED MODULE: ./src/decorators/deactivate.ts
 
-function deactivate(target, propertyKey) {
-    var info = viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(target);
-    info.deactivate = propertyKey;
-}
+var deactivate = createActionDecorator('deactivate');
 
 // CONCATENATED MODULE: ./src/decorators/viewModel.ts
 
 function viewModel(ctor) {
-    viewModelClassInfo_ViewModelClassInfo.getOrInitInfo(ctor);
+    vmClassInfo_VmClassInfo.getOrInitInfo(ctor);
 }
 
 // CONCATENATED MODULE: ./src/decorators/index.ts
@@ -383,42 +360,25 @@ var external_react_ = __webpack_require__("react");
 var internalContext_a = external_react_["createContext"](undefined), internalContext_Provider = internalContext_a.Provider, Consumer = internalContext_a.Consumer;
 
 
-// CONCATENATED MODULE: ./src/core/vmResolver.ts
+// CONCATENATED MODULE: ./src/types.ts
+function createMethodInvokeArgs(vm, methodName, methodArgs, isBroadcast) {
+    return {
+        vm: vm,
+        methodName: methodName,
+        methodArgs: methodArgs,
+        isBroadcast: isBroadcast
+    };
+}
 
+// CONCATENATED MODULE: ./src/core/viewRefresher.ts
 
-var vmResolver_VmResolver = (function () {
-    function VmResolver(internalContainer, rootComponent) {
+var viewRefresher_ViewRefresher = (function () {
+    function ViewRefresher(rootComponent) {
         this.viewsByViewModel = new Map();
         this.allViews = [];
-        this.internalResolver = internalContainer;
         this.allViews.push(rootComponent);
     }
-    VmResolver.prototype.get = function (key) {
-        var instance = this.internalResolver.get(key);
-        var vmClassInfo = viewModelClassInfo_ViewModelClassInfo.getInfo(instance);
-        if (vmClassInfo) {
-            var vmInstanceInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(instance);
-            if (!vmInstanceInfo) {
-                this.patchViewModel(instance, vmClassInfo);
-            }
-        }
-        return instance;
-    };
-    VmResolver.prototype.patchViewModel = function (vm, vmClassInfo) {
-        var _this = this;
-        var vmInstanceInfo = viewModelInstanceInfo_ViewModelInstanceInfo.initInfo(vm);
-        vmInstanceInfo.activate = vmClassInfo.activate;
-        vmInstanceInfo.deactivate = vmClassInfo.deactivate;
-        vmInstanceInfo.addView = function (view) { return _this.addView(vm, view); };
-        vmInstanceInfo.removeView = function (view) { return _this.removeView(vm, view); };
-        defineProperties(vm, vm, [DescriptorType.Property]);
-        var vmMethods = getMethods(vm);
-        for (var _i = 0, _a = Object.keys(vmMethods); _i < _a.length; _i++) {
-            var methodName = _a[_i];
-            this.patchMethod(vm, vmClassInfo, methodName);
-        }
-    };
-    VmResolver.prototype.addView = function (vm, view) {
+    ViewRefresher.prototype.registerView = function (vm, view) {
         var components = this.viewsByViewModel.get(vm);
         if (!components) {
             components = new Set();
@@ -427,46 +387,14 @@ var vmResolver_VmResolver = (function () {
         components.add(view);
         this.allViews.push(view);
     };
-    VmResolver.prototype.removeView = function (vm, view) {
+    ViewRefresher.prototype.unregisterView = function (vm, view) {
         var components = this.viewsByViewModel.get(vm);
         components.delete(view);
         if (!components.size)
             this.viewsByViewModel.delete(vm);
         removeOneFromArray(this.allViews, view);
     };
-    VmResolver.prototype.patchMethod = function (vm, vmClassInfo, methodName) {
-        var self = this;
-        var originalMethod = vm[methodName];
-        var actionOptions = vmClassInfo.action[methodName];
-        var broadcastOptions = vmClassInfo.broadcast[methodName];
-        var anyOptions = (actionOptions || broadcastOptions);
-        var finalMethod;
-        if (anyOptions) {
-            finalMethod = function () {
-                var args = arguments;
-                var isBroadcast = !!broadcastOptions;
-                self.notifyMethodInvokeStart(vm, methodName, args, isBroadcast);
-                var result = originalMethod.apply(this, args);
-                if (isPromise(result) && !anyOptions.immediate) {
-                    return result.then(function (resValue) {
-                        self.refreshView(isBroadcast, vm);
-                        self.notifyMethodInvokeEnd(vm, methodName, args, isBroadcast);
-                        return resValue;
-                    });
-                }
-                else {
-                    self.refreshView(isBroadcast, vm);
-                    self.notifyMethodInvokeEnd(vm, methodName, args, isBroadcast);
-                    return result;
-                }
-            };
-        }
-        else {
-            finalMethod = originalMethod;
-        }
-        vm[methodName] = finalMethod.bind(vm);
-    };
-    VmResolver.prototype.refreshView = function (refreshAll, vm) {
+    ViewRefresher.prototype.refreshViews = function (refreshAll, vm) {
         var views;
         if (refreshAll) {
             views = this.allViews.slice();
@@ -480,27 +408,101 @@ var vmResolver_VmResolver = (function () {
             });
         }
     };
-    VmResolver.prototype.notifyMethodInvokeStart = function (vm, methodName, methodArgs, isBroadcast) {
-        var handler = this.onMethodInvokeStart;
-        if (handler) {
-            handler({
-                vm: vm,
-                methodName: methodName,
-                methodArgs: methodArgs,
-                isBroadcast: isBroadcast
-            });
+    return ViewRefresher;
+}());
+
+
+// CONCATENATED MODULE: ./src/core/vmContext.ts
+
+var vmContext_VmContext = (function () {
+    function VmContext(vm, vmClassInfo, viewRefresher) {
+        this.activate = {};
+        this.deactivate = {};
+        this.activate = vmClassInfo.activate;
+        this.deactivate = vmClassInfo.deactivate;
+        this.registerView = function (view) { return viewRefresher.registerView(vm, view); };
+        this.unregisterView = function (view) { return viewRefresher.unregisterView(vm, view); };
+    }
+    VmContext.getContext = function (vm) {
+        if (!vm)
+            return undefined;
+        return getSymbol(vm, VM_CONTEXT);
+    };
+    VmContext.initContext = function (vm, vmClassInfo, viewRefresher) {
+        var info = new VmContext(vm, vmClassInfo, viewRefresher);
+        return setSymbol(vm, VM_CONTEXT, info);
+    };
+    return VmContext;
+}());
+
+
+// CONCATENATED MODULE: ./src/core/vmResolver.ts
+
+
+
+
+
+var vmResolver_VmResolver = (function () {
+    function VmResolver(internalContainer, rootComponent) {
+        this.internalResolver = internalContainer;
+        this.viewRefresher = new viewRefresher_ViewRefresher(rootComponent);
+    }
+    VmResolver.prototype.get = function (key) {
+        var instance = this.internalResolver.get(key);
+        var vmClassInfo = vmClassInfo_VmClassInfo.getInfo(instance);
+        if (vmClassInfo) {
+            var vmInstanceInfo = vmContext_VmContext.getContext(instance);
+            if (!vmInstanceInfo) {
+                this.patchViewModel(instance, vmClassInfo);
+            }
+        }
+        return instance;
+    };
+    VmResolver.prototype.patchViewModel = function (vm, vmClassInfo) {
+        vmContext_VmContext.initContext(vm, vmClassInfo, this.viewRefresher);
+        defineProperties(vm, vm, [DescriptorType.Property]);
+        var vmMethods = getMethods(vm);
+        for (var _i = 0, _a = Object.keys(vmMethods); _i < _a.length; _i++) {
+            var methodName = _a[_i];
+            this.patchMethod(vm, vmClassInfo, methodName);
         }
     };
-    VmResolver.prototype.notifyMethodInvokeEnd = function (vm, methodName, methodArgs, isBroadcast) {
-        var handler = this.onMethodInvokeEnd;
-        if (handler) {
-            handler({
-                vm: vm,
-                methodName: methodName,
-                methodArgs: methodArgs,
-                isBroadcast: isBroadcast
-            });
+    VmResolver.prototype.patchMethod = function (vm, vmClassInfo, methodName) {
+        var self = this;
+        var originalMethod = vm[methodName];
+        var actionOptions = vmClassInfo.actions[methodName];
+        var broadcastOptions = vmClassInfo.broadcasts[methodName];
+        var activateOptions = vmClassInfo.activate[methodName];
+        var deactivateOptions = vmClassInfo.deactivate[methodName];
+        var anyOptions = (actionOptions || broadcastOptions || activateOptions || deactivateOptions);
+        var shouldPatch = !!anyOptions;
+        var finalMethod;
+        if (shouldPatch) {
+            finalMethod = function () {
+                var args = arguments;
+                var isBroadcast = !!broadcastOptions;
+                var invokeEventArgs = createMethodInvokeArgs(vm, methodName, args, isBroadcast);
+                tryInvoke(self.onMethodInvokeStart, invokeEventArgs);
+                var result = originalMethod.apply(this, args);
+                var afterOriginalInvoked = function (res) {
+                    if (!deactivateOptions) {
+                        self.viewRefresher.refreshViews(isBroadcast, vm);
+                    }
+                    tryInvoke(self.onMethodInvokeEnd, invokeEventArgs);
+                    return res;
+                };
+                if (isPromise(result) && !anyOptions.immediate) {
+                    return result.then(afterOriginalInvoked);
+                }
+                else {
+                    return afterOriginalInvoked(result);
+                }
+            };
         }
+        else {
+            finalMethod = originalMethod;
+        }
+        vm[methodName] = finalMethod.bind(vm);
     };
     return VmResolver;
 }());
@@ -527,11 +529,7 @@ var Provider_Provider = (function (_super) {
     }
     Provider.prototype.render = function () {
         this.setResolver();
-        return (external_react_["createElement"](internalContext_Provider, { value: {
-                resolver: this.vmResolver,
-                onMethodInvokeStart: this.props.onMethodInvokeStart,
-                onMethodInvokeEnd: this.props.onMethodInvokeEnd
-            } }, this.props.children));
+        return (external_react_["createElement"](internalContext_Provider, { value: { resolver: this.vmResolver } }, this.props.children));
     };
     Provider.prototype.setResolver = function () {
         if (!this.props.resolver)
@@ -570,7 +568,7 @@ var __assign = (undefined && undefined.__assign) || Object.assign || function(t)
 
 
 var withViewModel = function (VmClass) { return function (Component) {
-    return (function (_super) {
+    var ComponentWithViewModel = (function (_super) {
         withViewModel_extends(ComponentWithViewModel, _super);
         function ComponentWithViewModel() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -597,64 +595,34 @@ var withViewModel = function (VmClass) { return function (Component) {
             if (!context.resolver)
                 throw new Error('Resolver not found. Make sure you use the Provider component.');
             this.vm = context.resolver.get(VmClass);
-            this.onMethodInvokeStart = context.onMethodInvokeStart;
-            this.onMethodInvokeEnd = context.onMethodInvokeEnd;
-            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
+            var vmInfo = vmContext_VmContext.getContext(this.vm);
             if (!vmInfo)
                 throw new Error("Class " + this.vm.constructor.name + " is used as a view-model but no decorator was used.");
-            vmInfo.addView(this);
+            vmInfo.registerView(this);
         };
         ComponentWithViewModel.prototype.activate = function () {
-            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
-            var activateKey = vmInfo.activate;
-            if (activateKey) {
-                var activateMethod = this.vm[activateKey];
-                if (typeof activateMethod === 'function') {
-                    this.notifyMethodInvokeStart(this.vm, activateKey);
-                    activateMethod();
-                    this.notifyMethodInvokeEnd(this.vm, activateKey);
-                }
-            }
+            var vmContext = vmContext_VmContext.getContext(this.vm);
+            this.invokeMethods(Object.keys(vmContext.activate || {}));
         };
         ComponentWithViewModel.prototype.deactivate = function () {
-            var vmInfo = viewModelInstanceInfo_ViewModelInstanceInfo.getInfo(this.vm);
-            vmInfo.removeView(this);
-            var deactivateKey = vmInfo.deactivate;
-            if (deactivateKey) {
-                var deactivateMethod = this.vm[deactivateKey];
-                if (typeof deactivateMethod === 'function') {
-                    this.notifyMethodInvokeStart(this.vm, deactivateKey);
-                    deactivateMethod();
-                    this.notifyMethodInvokeEnd(this.vm, deactivateKey);
-                }
-            }
+            var vmContext = vmContext_VmContext.getContext(this.vm);
+            vmContext.unregisterView(this);
+            this.invokeMethods(Object.keys(vmContext.deactivate || {}));
         };
-        ComponentWithViewModel.prototype.notifyMethodInvokeStart = function (vm, methodName, methodArgs, isBroadcast) {
-            if (isBroadcast === void 0) { isBroadcast = false; }
-            var handler = this.onMethodInvokeStart;
-            if (handler) {
-                handler({
-                    vm: vm,
-                    methodName: methodName,
-                    methodArgs: methodArgs,
-                    isBroadcast: isBroadcast
-                });
-            }
-        };
-        ComponentWithViewModel.prototype.notifyMethodInvokeEnd = function (vm, methodName, methodArgs, isBroadcast) {
-            if (isBroadcast === void 0) { isBroadcast = false; }
-            var handler = this.onMethodInvokeEnd;
-            if (handler) {
-                handler({
-                    vm: vm,
-                    methodName: methodName,
-                    methodArgs: methodArgs,
-                    isBroadcast: isBroadcast
-                });
+        ComponentWithViewModel.prototype.invokeMethods = function (methodNames) {
+            for (var _i = 0, methodNames_1 = methodNames; _i < methodNames_1.length; _i++) {
+                var name_1 = methodNames_1[_i];
+                var method = this.vm[name_1];
+                if (typeof method !== 'function')
+                    return;
+                method();
             }
         };
         return ComponentWithViewModel;
     }(external_react_["PureComponent"]));
+    var originalDisplayName = Component.displayName || Component.name || 'Component';
+    ComponentWithViewModel.displayName = "WithViewModel(" + originalDisplayName + ")";
+    return ComponentWithViewModel;
 }; };
 
 // CONCATENATED MODULE: ./src/core/index.ts
@@ -670,6 +638,8 @@ var withViewModel = function (VmClass) { return function (Component) {
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "Provider", function() { return Provider_Provider; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "withViewModel", function() { return withViewModel; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "ActionOptions", function() { return ActionOptions; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "createMethodInvokeArgs", function() { return createMethodInvokeArgs; });
+
 
 
 

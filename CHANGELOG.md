@@ -2,6 +2,16 @@
 
 ## [Unreleased](https://github.com/alonrbar/react-peppermint)
 
+## [1.0.0 - 2018-12-01](https://github.com/alonrbar/react-peppermint/tree/v1.0.0)
+
+### Changed
+
+- Set display name of withViewModel HOC.
+- 'activate' now also refresh the view.
+- Support multiple 'activate' and 'deactivate' methods.
+- Update readme and typings.
+- Major internal code refactor.
+
 ## [0.3.0 - 2018-07-11](https://github.com/alonrbar/react-peppermint/tree/v0.3.0)
 
 ### Added
