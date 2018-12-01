@@ -7,12 +7,12 @@
 ### Added
 
 - Publish to npm.
+- Set display name of withViewModel HOC.
+- Support multiple 'activate' and 'deactivate' methods.
 
 ### Changed
 
-- Set display name of withViewModel HOC.
 - 'activate' now also refresh the view.
-- Support multiple 'activate' and 'deactivate' methods.
 - Update readme and typings.
 - Major internal code refactor.
 
