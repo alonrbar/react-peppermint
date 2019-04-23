@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ResolverKey } from '../types';
+import { assignWithProperties } from '../utils';
 import { InternalConsumer, InternalContext } from './internalContext';
 import { VmContext } from './vmContext';
 
@@ -28,7 +29,7 @@ export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.Co
                 <InternalConsumer>
                     {context => {
                         this.init(context);
-                        const componentProps = Object.assign({}, this.vm, this.props);
+                        const componentProps = assignWithProperties({}, this.vm, this.props);
                         return <Component {...componentProps} />;
                     }}
                 </InternalConsumer>

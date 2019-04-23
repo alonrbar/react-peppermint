@@ -131,6 +131,26 @@ var DescriptorType;
     DescriptorType["Property"] = "Property";
     DescriptorType["Method"] = "Method";
 })(DescriptorType || (DescriptorType = {}));
+function assignWithProperties(target) {
+    var sources = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        sources[_i - 1] = arguments[_i];
+    }
+    target = Object.assign.apply(Object, [target].concat(sources));
+    for (var _a = 0, sources_1 = sources; _a < sources_1.length; _a++) {
+        var source = sources_1[_a];
+        var proto = Object.getPrototypeOf(source);
+        for (var _b = 0, _c = Object.getOwnPropertyNames(proto); _b < _c.length; _b++) {
+            var key = _c[_b];
+            var desc = Object.getOwnPropertyDescriptor(proto, key);
+            var hasGetter = desc && typeof desc.get === 'function';
+            if (hasGetter) {
+                target[key] = desc.get.call(source);
+            }
+        }
+    }
+    return target;
+}
 function defineProperties(target, source, descriptorTypes) {
     var descriptors = getAllPropertyDescriptors(source, descriptorTypes);
     for (var _i = 0, _a = Object.keys(descriptors); _i < _a.length; _i++) {
@@ -567,6 +587,7 @@ var __assign = (undefined && undefined.__assign) || Object.assign || function(t)
 
 
 
+
 var withViewModel = function (VmClass) { return function (Component) {
     var ComponentWithViewModel = (function (_super) {
         withViewModel_extends(ComponentWithViewModel, _super);
@@ -580,7 +601,7 @@ var withViewModel = function (VmClass) { return function (Component) {
             var _this = this;
             return (external_react_["createElement"](Consumer, null, function (context) {
                 _this.init(context);
-                var componentProps = Object.assign({}, _this.vm, _this.props);
+                var componentProps = assignWithProperties({}, _this.vm, _this.props);
                 return external_react_["createElement"](Component, __assign({}, componentProps));
             }));
         };

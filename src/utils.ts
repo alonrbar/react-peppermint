@@ -12,6 +12,31 @@ export enum DescriptorType {
 }
 
 /**
+ * When using `Object.assign` TypeScript assigns property values (invoking
+ * getters) but Babel does not. Using this method we can be sure that properties
+ * are also copied to the target object.
+ */
+export function assignWithProperties(target: object, ...sources: object[]): object {
+
+    // assign fields     
+    target = Object.assign(target, ...sources);
+
+    // add all properties
+    for (const source of sources) {
+        const proto = Object.getPrototypeOf(source);
+        for (const key of Object.getOwnPropertyNames(proto)) {
+            const desc = Object.getOwnPropertyDescriptor(proto, key);
+            const hasGetter = desc && typeof desc.get === 'function';
+            if (hasGetter) {
+                (target as any)[key] = desc.get.call(source);
+            }
+        }
+    }
+
+    return target;
+}
+
+/**
  * Define properties of 'source' in 'target'.
  * @param target 
  * @param source 

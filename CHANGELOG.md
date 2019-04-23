@@ -2,6 +2,12 @@
 
 ## [Unreleased](https://github.com/alonrbar/react-peppermint)
 
+## [1.0.1 - 2019-04-23](https://github.com/alonrbar/react-peppermint/tree/v1.0.1)
+
+### Fixed
+
+- Fix view-model properties not being on certain Object.assign implementations (e.g. when compiling with babel).
+
 ## [1.0.0 - 2018-12-01](https://github.com/alonrbar/react-peppermint/tree/v1.0.0)
 
 ### Added

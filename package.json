@@ -1,6 +1,6 @@
 {
   "name": "react-peppermint",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Keep your view fresh 🌿 with React Peppermint - a lightweight view-model library for React. Written in TypeScript.",
   "keywords": [
     "react",
