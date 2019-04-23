@@ -6,7 +6,7 @@
 
 ### Fixed
 
-- Fix view-model properties not being on certain Object.assign implementations (e.g. when compiling with babel).
+- Fix view-model properties not being copied on certain Object.assign implementations (e.g. when compiling with babel).
 
 ## [1.0.0 - 2018-12-01](https://github.com/alonrbar/react-peppermint/tree/v1.0.0)
 
