@@ -10,6 +10,8 @@ export interface InternalContext {
     resolver: IResolver;
 }
 
-const { Provider, Consumer } = React.createContext<InternalContext>(undefined);
+export const internalContext = React.createContext<InternalContext>(undefined);
+
+const { Provider, Consumer } = internalContext;
 
 export { Provider as InternalProvider, Consumer as InternalConsumer };
