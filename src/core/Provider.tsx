@@ -12,6 +12,7 @@ export interface ProviderProps {
     resolver: IResolver;
     onMethodInvokeStart?: (e: MethodInvokeEvent) => void;
     onMethodInvokeEnd?: (e: MethodInvokeEvent) => void;
+    children?: React.ReactNode;
 }
 
 export class Provider extends React.PureComponent<ProviderProps> {

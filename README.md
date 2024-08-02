@@ -1,6 +1,6 @@
 # react-peppermint
 
-Keep your view fresh 🌿 with React Peppermint - a lightweight view-model library for React. Written in TypeScript.
+Fresh state management for React 🌿
 
 [Change Log](https://github.com/alonrbar/react-peppermint/blob/master/CHANGELOG.md)
 

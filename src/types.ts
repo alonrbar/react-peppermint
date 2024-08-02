@@ -1,4 +1,4 @@
-// tslint:disable:ban-types
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
 export declare type ResolverKey<T> = Constructor<T> | string | symbol;
 

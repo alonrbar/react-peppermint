@@ -7,21 +7,22 @@
         "jsx": "react",
 
         // --- output --- //
-        
-        "declaration": false,
+
+        "declaration": true,
+        "declarationDir": "./dist/types",
         "outDir": "./dist",
         "sourceMap": true,
-        "target": "es5",
-        "module": "esnext",
+        "target": "es2022",
+        "module": "es2022",
         "removeComments": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        
+
         // --- module resolution --- //
 
         "typeRoots" : ["./node_modules/@types","./src/@types"],
         "moduleResolution": "node",
-        "baseUrl": ".",        
+        "baseUrl": ".",
 
         // --- validation options --- //
 
@@ -29,7 +30,7 @@
         "allowSyntheticDefaultImports": false,
         "allowUnreachableCode": false,
         "forceConsistentCasingInFileNames": true,
-        "lib": ["dom", "es2017"],
+        "lib": ["dom", "es2022"],
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,

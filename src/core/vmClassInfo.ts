@@ -17,7 +17,7 @@ export class VmClassInfo {
         if (!obj)
             return undefined;
 
-        let ownInfo = VmClassInfo.getOwnInfo(obj);
+        const ownInfo = VmClassInfo.getOwnInfo(obj);
         if (ownInfo)
             return ownInfo;
 
@@ -61,7 +61,7 @@ export class VmClassInfo {
     }
 
     private static initInfo(obj: any): VmClassInfo {
-        // information is stored on the class constructor to 
+        // information is stored on the class constructor to
         // be available to all class instances
         const isConstructor = (typeof obj === 'function' ? true : false);
         const target = (isConstructor ? obj : obj.constructor);

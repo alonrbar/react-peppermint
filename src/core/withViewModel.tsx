@@ -4,37 +4,42 @@ import { assignWithProperties } from '../utils';
 import { InternalConsumer } from './internalContext';
 import { ViewModelLifeCycle } from './viewModelLifeCycle';
 
-// tslint:disable:variable-name
+export type OmitProps<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
 
-export const withViewModel = (VmClass: ResolverKey<any>) => (Component: React.ComponentType) => {
+export type ComponentEnhancer<TInjectedProps> = <TRequiredProps>(Component: React.ComponentType<TRequiredProps>) => React.ComponentClass<OmitProps<TRequiredProps, TInjectedProps>>;
 
-    class ComponentWithViewModel extends React.PureComponent {
+export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnhancer<TVm> {
 
-        private readonly vmLifeCycle = new ViewModelLifeCycle(VmClass);
+    return function <TProps>(Component: React.ComponentType<TProps>) {
 
-        public componentDidMount() {
-            this.vmLifeCycle.activate();
+        class ComponentWithViewModel extends React.PureComponent<OmitProps<TProps, TVm>> {
+
+            private readonly vmLifeCycle = new ViewModelLifeCycle(VmClass);
+
+            public componentDidMount() {
+                this.vmLifeCycle.activate();
+            }
+
+            public componentWillUnmount() {
+                this.vmLifeCycle.deactivate();
+            }
+
+            public render() {
+                return (
+                    <InternalConsumer>
+                        {context => {
+                            this.vmLifeCycle.init(context, this);
+                            const componentProps: any = assignWithProperties({}, this.vmLifeCycle.viewModel, this.props);
+                            return <Component {...componentProps} />;
+                        }}
+                    </InternalConsumer>
+                );
+            }
         }
 
-        public componentWillUnmount() {
-            this.vmLifeCycle.deactivate();
-        }
-
-        public render() {
-            return (
-                <InternalConsumer>
-                    {context => {
-                        this.vmLifeCycle.init(context, this);
-                        const componentProps = assignWithProperties({}, this.vmLifeCycle.viewModel, this.props);
-                        return <Component {...componentProps} />;
-                    }}
-                </InternalConsumer>
-            );
-        }
-    }
-
-    // set HOC display name
-    const originalDisplayName = Component.displayName || Component.name || 'Component';
-    (ComponentWithViewModel as React.ComponentType).displayName = `WithViewModel(${originalDisplayName})`;
-    return ComponentWithViewModel;
-};
+        // set HOC display name
+        const originalDisplayName = Component.displayName || Component.name || 'Component';
+        (ComponentWithViewModel as React.ComponentType).displayName = `WithViewModel(${originalDisplayName})`;
+        return ComponentWithViewModel;
+    };
+}

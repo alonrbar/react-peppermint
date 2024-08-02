@@ -4,7 +4,7 @@ import { Constructor, Func, IMap, Method } from './types';
 export enum DescriptorType {
     None = "None",
     Field = "Field",
-    /** 
+    /**
      * Properties with getter.
      */
     Property = "Property",
@@ -18,7 +18,7 @@ export enum DescriptorType {
  */
 export function assignWithProperties(target: object, ...sources: object[]): object {
 
-    // assign fields     
+    // assign fields
     target = Object.assign(target, ...sources);
 
     // add all properties
@@ -38,9 +38,9 @@ export function assignWithProperties(target: object, ...sources: object[]): obje
 
 /**
  * Define properties of 'source' in 'target'.
- * @param target 
- * @param source 
- * @param descriptorTypes By default all properties (fields, properties, methods) are defined. 
+ * @param target
+ * @param source
+ * @param descriptorTypes By default all properties (fields, properties, methods) are defined.
  * If specified will define only the specified property types.
  */
 export function defineProperties(target: object, source: object, descriptorTypes?: DescriptorType[]): object {
@@ -130,7 +130,7 @@ export function getConstructorOwnProp(obj: object, key: symbol | string): any {
 }
 
 /**
- * @param obj 
+ * @param obj
  * @param bind Whether or not to bind the returned methods to 'obj'. Default value: false.
  */
 export function getMethods(obj: object | Constructor<any>, bind = false): IMap<Method> {
@@ -163,7 +163,7 @@ export function isPromise(candidate: any) {
  * Removes one element from the array and returns the removed element.
  */
 export function removeOneFromArray<T>(array: T[], item: T): T {
-    for (var i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         if (array[i] === item) {
             return array.splice(i, 1)[0];
         }

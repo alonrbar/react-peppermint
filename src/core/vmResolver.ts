@@ -64,7 +64,8 @@ export class VmResolver implements IResolver {
 
     private patchMethod(vm: any, vmClassInfo: VmClassInfo, methodName: string): void {
 
-        const self = this;  // tslint:disable-line:no-this-assignment
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
         const originalMethod: Method = vm[methodName];
         const actionOptions = vmClassInfo.actions[methodName];
         const broadcastOptions = vmClassInfo.broadcasts[methodName];
@@ -79,6 +80,7 @@ export class VmResolver implements IResolver {
             // patch actions and broadcasts
             finalMethod = function (this: any) {
 
+                // eslint-disable-next-line prefer-rest-params
                 const args = arguments;
                 const isBroadcast = !!broadcastOptions;
 
