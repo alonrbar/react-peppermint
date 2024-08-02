@@ -1,8 +1,8 @@
 export default {
     testEnvironment: "node",
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
-    moduleDirectories: "node_modules",
-    testRegex: "/test/.*[.]tests[.]ts$",
+    moduleDirectories: ["node_modules"],
+    testRegex: "/test/.*[.]tests[.](ts|tsx)$",
     reporters: [
         "default",
         ["jest-junit", { outputDirectory: "test-reports" }],
