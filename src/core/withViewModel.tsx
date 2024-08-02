@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ResolverKey } from '../types';
 import { assignWithProperties } from '../utils';
 import { InternalConsumer } from './internalContext';
-import { ViewModelLifeCycle } from './viewModelLifecycle';
+import { ViewModelLifeCycle } from './viewModelLifeCycle';
 
 // tslint:disable:variable-name
 
