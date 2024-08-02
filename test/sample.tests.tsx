@@ -17,6 +17,6 @@ describe('Sample', () => {
                 <div>Test</div>
             </Provider>
         )
-        expect(res).toBeTruthy();
+        res.getByText('Test');
     });
 });
