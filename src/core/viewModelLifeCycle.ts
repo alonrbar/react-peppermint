@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { ResolverKey } from '../types';
 import { InternalContext } from './internalContext';
 import { VmContext } from './vmContext';
