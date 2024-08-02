@@ -10,7 +10,7 @@
     "mvc",
     "di",
     "dependency injection"
-  ],  
+  ],
   "license": "MIT",
   "author": "Alon Bar",
   "homepage": "https://github.com/alonrbar/react-peppermint",
@@ -50,5 +50,6 @@
     "webpack-cli": "3.3.11",
     "webpack-merge": "4.2.2",
     "webpack-node-externals": "1.7.2"
-  }
+  },
+  "packageManager": "yarn@4.3.1"
 }
