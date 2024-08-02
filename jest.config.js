@@ -1,7 +1,9 @@
+import path from 'node:path';
+
 export default {
-    testEnvironment: "node",
-    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
-    moduleDirectories: ["node_modules"],
+    testEnvironment: "jsdom",
+    moduleFileExtensions: ["ts", "tsx", "js", "jsx"],
+    moduleDirectories: [path.resolve("."), "node_modules"],
     testRegex: "/test/.*[.]tests[.](ts|tsx)$",
     reporters: [
         "default",
