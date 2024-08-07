@@ -5,6 +5,9 @@ import { ReactContext } from './reactContext';
 import { ViewRefresher } from './viewRefresher';
 import { VmMetadata } from './vmMetadata';
 
+/**
+ * Manages a single view-model instance.
+ */
 export class VmContext {
 
     public static get(vm: any): VmContext {
