@@ -1,12 +1,14 @@
 # Change Log
 
-## [Unreleased](https://github.com/alonrbar/react-peppermint)
+## [1.1.0 - 2024-08-07](https://github.com/alonrbar/react-peppermint/tree/v1.1.0)
 
-## [Unreleased](https://github.com/alon-ananchik/ananchik/compare/v3.8.14...HEAD)
+### Added
+
+- useViewModel hook.
 
 ### Changed
 
-- Modernize the project: Update tooling and dependencies.
+- Modernize the project: Update tooling and dependencies and set up a CI pipeline.
 
 ## [1.0.1 - 2019-04-23](https://github.com/alonrbar/react-peppermint/tree/v1.0.1)
 
