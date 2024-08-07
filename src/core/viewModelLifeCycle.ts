@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { ResolverKey } from '../types';
+import { ResolverKey } from 'src/types';
+import { tryInvoke } from 'src/utils';
 import { InternalContext } from './internalContext';
 import { VmContext } from './vmContext';
 
@@ -58,11 +59,7 @@ export class ViewModelLifeCycle {
 
     private invokeMethods(methodNames: string[]) {
         for (const name of methodNames) {
-            const method = this._viewModel[name];
-            if (typeof method !== 'function')
-                return;
-
-            method();
+            tryInvoke(this._viewModel[name]);
         }
     }
 }

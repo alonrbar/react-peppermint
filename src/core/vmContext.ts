@@ -11,20 +11,28 @@ export class VmContext {
         return getSymbol(vm, VM_CONTEXT);
     }
 
-    public static initContext(vm: any, vmClassInfo: VmMetadata, viewRefresher: ViewRefresher): VmContext {
-        const info = new VmContext(vm, vmClassInfo, viewRefresher);
-        return setSymbol(vm, VM_CONTEXT, info);
+    public static init(vm: any, meta: VmMetadata, viewRefresher: ViewRefresher): VmContext {
+        const ctx = new VmContext(vm, meta, viewRefresher);
+        return setSymbol(vm, VM_CONTEXT, ctx);
     }
 
     public activate: object = {};
     public deactivate: object = {};
-    public readonly registerView: (view: React.Component) => void;
-    public readonly unregisterView: (view: React.Component) => void;
 
-    constructor(vm: any, meta: VmMetadata, viewRefresher: ViewRefresher) {
+    constructor(
+        private readonly vm: any,
+        meta: VmMetadata,
+        private readonly viewRefresher: ViewRefresher
+    ) {
         this.activate = meta.activate;
         this.deactivate = meta.deactivate;
-        this.registerView = (view: React.Component) => viewRefresher.registerView(vm, view);
-        this.unregisterView = (view: React.Component) => viewRefresher.unregisterView(vm, view);
+    }
+
+    public registerView(view: React.Component) {
+        this.viewRefresher.registerView(this.vm, view);
+    }
+
+    public unregisterView(view: React.Component) {
+        this.viewRefresher.unregisterView(this.vm, view);
     }
 }

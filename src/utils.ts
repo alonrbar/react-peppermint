@@ -173,8 +173,9 @@ export function removeOneFromArray<T>(array: T[], item: T): T {
 }
 
 export function tryInvoke<TIn, TOut>(func: Func<TIn, TOut>, ...args: TIn[]): TOut {
-    if (typeof func === 'function')
-        return func(...args);
+    if (typeof func !== 'function') {
+        return undefined;
+    }
 
-    return undefined;
+    return func(...args);
 }
