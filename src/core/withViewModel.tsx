@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ResolverKey } from '../types';
 import { assignWithProperties } from '../utils';
 import { Consumer } from './reactContext';
-import { ViewModelLifeCycle } from './viewModelLifeCycle';
+import { VmContext } from './vmContext';
 
 export type OmitProps<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
 
@@ -14,22 +14,24 @@ export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnh
 
         class ComponentWithViewModel extends React.PureComponent<OmitProps<TProps, TVm>> {
 
-            private readonly vmLifeCycle = new ViewModelLifeCycle(VmClass);
+            private vmContext: VmContext;
 
             public componentDidMount() {
-                this.vmLifeCycle.activate();
+                this.vmContext?.activate();
             }
 
             public componentWillUnmount() {
-                this.vmLifeCycle.deactivate();
+                this.vmContext?.deactivate(this);
             }
 
             public render() {
                 return (
                     <Consumer>
-                        {context => {
-                            this.vmLifeCycle.init(context, this);
-                            const componentProps: any = assignWithProperties({}, this.vmLifeCycle.viewModel, this.props);
+                        {ctx => {
+                            if (!this.vmContext) {
+                                this.vmContext = VmContext.registerView(this, ctx, VmClass);
+                            }
+                            const componentProps: any = assignWithProperties({}, this.vmContext?.vm, this.props);
                             return <Component {...componentProps} />;
                         }}
                     </Consumer>

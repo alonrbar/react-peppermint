@@ -15,7 +15,7 @@ export interface PatchParams {
 export function patchViewModel(params: PatchParams): void {
 
     // Set vm symbols
-    VmContext.initContext(params.vm, params.vmMeta, params.viewRefresher);
+    VmContext.init(params.vm, params.vmMeta, params.viewRefresher);
 
     //
     // Define methods and properties directly on the vm instance. This will
