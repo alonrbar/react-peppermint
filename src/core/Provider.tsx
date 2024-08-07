@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { IResolver, MethodInvokeEvent } from '../types';
 import { Provider as ContextProvider  } from './reactContext';
-import { VmContainer } from './vmResolver';
+import { VmContainer } from './vmContainer';
 
 //
 // Here we wrap the actual React context provider with our own Provider class so

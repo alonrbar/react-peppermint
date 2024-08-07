@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { VmContainer } from './vmResolver';
+import { VmContainer } from './vmContainer';
 
 //
 // This is the internal React context provider. The provider that is exposed to
