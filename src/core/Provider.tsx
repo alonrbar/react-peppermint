@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IResolver, MethodInvokeEvent } from '../types';
-import { Provider as ContextProvider  } from './internalContext';
+import { Provider as ContextProvider  } from './reactContext';
 import { VmResolver } from './vmResolver';
 
 //

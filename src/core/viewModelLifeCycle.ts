@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ResolverKey } from 'src/types';
 import { tryInvoke } from 'src/utils';
-import { ReactContext } from './internalContext';
+import { ReactContext } from './reactContext';
 import { VmContext } from './vmContext';
 
 export class ViewModelLifeCycle {

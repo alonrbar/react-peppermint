@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ResolverKey } from '../types';
 import { assignWithProperties } from '../utils';
-import { Consumer } from './internalContext';
+import { Consumer } from './reactContext';
 import { ViewModelLifeCycle } from './viewModelLifeCycle';
 
 export type OmitProps<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
