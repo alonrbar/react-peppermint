@@ -11,6 +11,7 @@ module.exports = {
         "@babel/preset-react"
     ],
     "plugins": [
+        ["@babel/plugin-proposal-decorators", { legacy: true }],
         isJest && '@babel/transform-modules-commonjs'
     ].filter(Boolean)
 };
