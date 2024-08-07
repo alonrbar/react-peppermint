@@ -17,6 +17,8 @@ export interface ProviderProps {
 
 export class Provider extends React.PureComponent<ProviderProps> {
 
+    private readonly refreshView = this.forceUpdate.bind(this);
+
     private vmContainer: VmContainer;
 
     public render() {
@@ -44,7 +46,7 @@ export class Provider extends React.PureComponent<ProviderProps> {
         }
 
         // Create (or update) VM container
-        this.vmContainer = new VmContainer(this.props.resolver, this.forceUpdate.bind(this));
+        this.vmContainer = new VmContainer(this.props.resolver, this.refreshView);
         this.vmContainer.onMethodInvokeStart = this.props.onMethodInvokeStart;
         this.vmContainer.onMethodInvokeEnd = this.props.onMethodInvokeEnd;
     }
