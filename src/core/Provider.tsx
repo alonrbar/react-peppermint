@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IResolver, MethodInvokeEvent } from '../types';
-import { InternalProvider } from './internalContext';
+import { Provider as ContextProvider  } from './internalContext';
 import { VmResolver } from './vmResolver';
 
 //
@@ -26,9 +26,9 @@ export class Provider extends React.PureComponent<ProviderProps> {
 
         // delegate rest of work to React's Provider
         return (
-            <InternalProvider value={{ resolver: this.vmResolver }}>
+            <ContextProvider value={{ resolver: this.vmResolver }}>
                 {this.props.children}
-            </InternalProvider>
+            </ContextProvider>
         );
     }
 

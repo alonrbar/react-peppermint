@@ -11,7 +11,7 @@ export class VmContext {
         return getSymbol(vm, VM_CONTEXT);
     }
 
-    public static init(vm: any, meta: VmMetadata, viewRefresher: ViewRefresher): VmContext {
+    public static initContext(vm: any, meta: VmMetadata, viewRefresher: ViewRefresher): VmContext {
         const ctx = new VmContext(vm, meta, viewRefresher);
         return setSymbol(vm, VM_CONTEXT, ctx);
     }

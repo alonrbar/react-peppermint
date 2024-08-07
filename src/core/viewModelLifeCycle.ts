@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ResolverKey } from 'src/types';
 import { tryInvoke } from 'src/utils';
-import { InternalContext } from './internalContext';
+import { ReactContext } from './internalContext';
 import { VmContext } from './vmContext';
 
 export class ViewModelLifeCycle {
@@ -16,7 +16,7 @@ export class ViewModelLifeCycle {
     constructor(private readonly VmClass: ResolverKey<any>) {
     }
 
-    public init(context: InternalContext, view: React.Component) {
+    public init(context: ReactContext, view: React.Component) {
 
         // init only once
         if (this._viewModel)

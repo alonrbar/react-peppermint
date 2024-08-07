@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ResolverKey } from '../types';
 import { assignWithProperties } from '../utils';
-import { InternalConsumer } from './internalContext';
+import { Consumer } from './internalContext';
 import { ViewModelLifeCycle } from './viewModelLifeCycle';
 
 export type OmitProps<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
@@ -26,13 +26,13 @@ export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnh
 
             public render() {
                 return (
-                    <InternalConsumer>
+                    <Consumer>
                         {context => {
                             this.vmLifeCycle.init(context, this);
                             const componentProps: any = assignWithProperties({}, this.vmLifeCycle.viewModel, this.props);
                             return <Component {...componentProps} />;
                         }}
-                    </InternalConsumer>
+                    </Consumer>
                 );
             }
         }

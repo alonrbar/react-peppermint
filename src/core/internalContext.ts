@@ -6,12 +6,8 @@ import { IResolver } from '../types';
 // the end user is in a separate file.
 //
 
-export interface InternalContext {
+export interface ReactContext {
     resolver: IResolver;
 }
 
-export const internalContext = React.createContext<InternalContext>(undefined);
-
-const { Provider, Consumer } = internalContext;
-
-export { Provider as InternalProvider, Consumer as InternalConsumer };
+export const { Provider, Consumer } = React.createContext<ReactContext>(undefined);
