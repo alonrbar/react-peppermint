@@ -28,7 +28,7 @@ export class VmContext {
         }
 
         // Resolve VM instance
-        const vm = reactContext.resolver.get(VmClass);
+        const vm = reactContext.vmContainer.get(VmClass);
         if (!vm) {
             throw new Error(`Failed to resolve '${VmClass?.toString()}' view-model.`);
         }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IResolver } from '../types';
+import { VmContainer } from './vmResolver';
 
 //
 // This is the internal React context provider. The provider that is exposed to
@@ -7,7 +7,7 @@ import { IResolver } from '../types';
 //
 
 export interface ReactContext {
-    resolver: IResolver;
+    vmContainer: VmContainer;
 }
 
 export const { Provider, Consumer } = React.createContext<ReactContext>(undefined);

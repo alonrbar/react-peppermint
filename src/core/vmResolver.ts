@@ -7,22 +7,22 @@ import { VmMetadata } from './vmMetadata';
 /**
  * Augments and resolves view-models.
  */
-export class VmResolver implements IResolver {
+export class VmContainer {
 
     public onMethodInvokeStart: (e: MethodInvokeEvent) => void;
     public onMethodInvokeEnd: (e: MethodInvokeEvent) => void;
 
-    public readonly internalResolver: IResolver;
+    public readonly internalContainer: IResolver;
 
     private readonly viewRefresher: ViewRefresher;
 
     constructor(internalContainer: IResolver, rootComponent: React.Component) {
-        this.internalResolver = internalContainer;
+        this.internalContainer = internalContainer;
         this.viewRefresher = new ViewRefresher(rootComponent);
     }
 
     public get<T>(key: ResolverKey<T>): T {
-        const vm = this.internalResolver.get(key);
+        const vm = this.internalContainer.get(key);
         const vmMeta = VmMetadata.get(vm);
 
         // Not a ViewModel

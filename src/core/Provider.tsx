@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { IResolver, MethodInvokeEvent } from '../types';
 import { Provider as ContextProvider  } from './reactContext';
-import { VmResolver } from './vmResolver';
+import { VmContainer } from './vmResolver';
 
 //
 // Here we wrap the actual React context provider with our own Provider class so
@@ -17,35 +17,35 @@ export interface ProviderProps {
 
 export class Provider extends React.PureComponent<ProviderProps> {
 
-    private vmResolver: VmResolver;
+    private vmContainer: VmContainer;
 
     public render() {
 
-        // init the resolver
-        this.setResolver();
+        // Init the VM container
+        this.setVmContainer();
 
-        // delegate rest of work to React's Provider
+        // Delegate rest of work to React's Provider
         return (
-            <ContextProvider value={{ resolver: this.vmResolver }}>
+            <ContextProvider value={{ vmContainer: this.vmContainer }}>
                 {this.props.children}
             </ContextProvider>
         );
     }
 
-    private setResolver() {
+    private setVmContainer() {
 
-        // can't set resolver
+        // Missing DI container
         if (!this.props.resolver)
             return;
 
-        // resolver already exists
-        if (this.vmResolver && this.vmResolver.internalResolver === this.props.resolver) {
+        // VM container already exists
+        if (this.vmContainer && this.vmContainer.internalContainer === this.props.resolver) {
             return;
         }
 
-        // create (or update) resolver
-        this.vmResolver = new VmResolver(this.props.resolver, this);
-        this.vmResolver.onMethodInvokeStart = this.props.onMethodInvokeStart;
-        this.vmResolver.onMethodInvokeEnd = this.props.onMethodInvokeEnd;
+        // Create (or update) VM container
+        this.vmContainer = new VmContainer(this.props.resolver, this);
+        this.vmContainer.onMethodInvokeStart = this.props.onMethodInvokeStart;
+        this.vmContainer.onMethodInvokeEnd = this.props.onMethodInvokeEnd;
     }
 }
