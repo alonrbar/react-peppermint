@@ -1,8 +1,8 @@
-import { defineProperties, DescriptorType, getMethods, isPromise, tryInvoke } from 'src/utils';
+import { createMethodInvokeArgs, Method, MethodInvokeEvent } from '../types';
+import { defineProperties, DescriptorType, getMethods, isPromise, tryInvoke } from '../utils';
+import { ViewRefresher } from './viewRefresher';
 import { VmContext } from './vmContext';
 import { VmMetadata } from './vmMetadata';
-import { ViewRefresher } from './viewRefresher';
-import { createMethodInvokeArgs, Method, MethodInvokeEvent } from 'src/types';
 
 export interface PatchParams {
     vm: any;

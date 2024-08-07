@@ -1,6 +1,6 @@
-import { ResolverKey } from 'src/types';
-import { tryInvoke } from 'src/utils';
 import { getSymbol, setSymbol, VM_CONTEXT } from '../symbols';
+import { ResolverKey } from '../types';
+import { tryInvoke } from '../utils';
 import { ReactContext } from './reactContext';
 import { RefreshCallback, ViewRefresher } from './viewRefresher';
 import { VmMetadata } from './vmMetadata';
