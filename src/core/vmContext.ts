@@ -22,6 +22,11 @@ export class VmContext {
         return setSymbol(vm, VM_CONTEXT, ctx);
     }
 
+    /**
+     * Registers a view with the view-model.
+     * If the view is already registered, the call is a no-op.
+     * Returns the VM context.
+     */
     public static registerView(refreshView: RefreshCallback, reactContext: ReactContext, VmClass: ResolverKey<any>): VmContext {
         if (!reactContext) {
             return undefined;

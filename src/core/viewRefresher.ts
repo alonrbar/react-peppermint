@@ -11,6 +11,10 @@ export class ViewRefresher {
         this.allCallbacks.push(refreshRoot);
     }
 
+    /**
+     * Registers a view with the view-model.
+     * If the view is already registered, the call is a no-op.
+     */
     public registerView(vm: any, refreshView: RefreshCallback): void {
 
         // Update callbacksByViewModel collection
@@ -19,9 +23,14 @@ export class ViewRefresher {
             callbacks = new Set();
             this.callbacksByViewModel.set(vm, callbacks);
         }
-        callbacks.add(refreshView);
 
-        // Update allCallbacks collections
+        // Already registered
+        if (callbacks.has(refreshView)) {
+            return;
+        }
+
+        // Register
+        callbacks.add(refreshView);
         this.allCallbacks.push(refreshView);
     }
 

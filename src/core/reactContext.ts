@@ -10,4 +10,5 @@ export interface ReactContext {
     vmContainer: VmContainer;
 }
 
-export const { Provider, Consumer } = React.createContext<ReactContext>(undefined);
+export const ReactPeppermintContext = React.createContext<ReactContext>(undefined);
+export const { Provider, Consumer } = ReactPeppermintContext;
