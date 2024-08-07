@@ -2,7 +2,7 @@ import { ResolverKey } from 'src/types';
 import { tryInvoke } from 'src/utils';
 import { getSymbol, setSymbol, VM_CONTEXT } from '../symbols';
 import { ReactContext } from './reactContext';
-import { ViewRefresher } from './viewRefresher';
+import { RefreshCallback, ViewRefresher } from './viewRefresher';
 import { VmMetadata } from './vmMetadata';
 
 /**
@@ -22,7 +22,7 @@ export class VmContext {
         return setSymbol(vm, VM_CONTEXT, ctx);
     }
 
-    public static registerView(view: React.Component, reactContext: ReactContext, VmClass: ResolverKey<any>): VmContext {
+    public static registerView(refreshView: RefreshCallback, reactContext: ReactContext, VmClass: ResolverKey<any>): VmContext {
         if (!reactContext) {
             return undefined;
         }
@@ -37,7 +37,7 @@ export class VmContext {
         const vmContext = VmContext.get(vm);
 
         // Register view
-        vmContext.registerView(view);
+        vmContext.registerView(refreshView);
 
         return vmContext;
     }
@@ -53,8 +53,8 @@ export class VmContext {
         this.invokeMethods(Object.keys(this.meta.activate || {}));
     }
 
-    public deactivate(view: React.Component) {
-        this.unregisterView(view);
+    public deactivate(refreshView: RefreshCallback) {
+        this.unregisterView(refreshView);
         this.invokeMethods(Object.keys(this.meta.deactivate || {}));
     }
 
@@ -62,12 +62,12 @@ export class VmContext {
     // Private methods
     //
 
-    private registerView(view: React.Component) {
-        this.viewRefresher.registerView(this.vm, view);
+    private registerView(refreshView: RefreshCallback) {
+        this.viewRefresher.registerView(this.vm, refreshView);
     }
 
-    private unregisterView(view: React.Component) {
-        this.viewRefresher.unregisterView(this.vm, view);
+    private unregisterView(refreshView: RefreshCallback) {
+        this.viewRefresher.unregisterView(this.vm, refreshView);
     }
 
     private invokeMethods(methodNames: string[]) {

@@ -44,7 +44,7 @@ export class Provider extends React.PureComponent<ProviderProps> {
         }
 
         // Create (or update) VM container
-        this.vmContainer = new VmContainer(this.props.resolver, this);
+        this.vmContainer = new VmContainer(this.props.resolver, this.forceUpdate.bind(this));
         this.vmContainer.onMethodInvokeStart = this.props.onMethodInvokeStart;
         this.vmContainer.onMethodInvokeEnd = this.props.onMethodInvokeEnd;
     }

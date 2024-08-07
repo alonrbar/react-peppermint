@@ -1,6 +1,6 @@
 import { IResolver, MethodInvokeEvent, ResolverKey } from '../types';
 import { patchViewModel } from './patchViewModel';
-import { ViewRefresher } from './viewRefresher';
+import { RefreshCallback, ViewRefresher } from './viewRefresher';
 import { VmContext } from './vmContext';
 import { VmMetadata } from './vmMetadata';
 
@@ -16,9 +16,9 @@ export class VmContainer {
 
     private readonly viewRefresher: ViewRefresher;
 
-    constructor(internalContainer: IResolver, rootComponent: React.Component) {
+    constructor(internalContainer: IResolver, refreshRoot: RefreshCallback) {
         this.internalContainer = internalContainer;
-        this.viewRefresher = new ViewRefresher(rootComponent);
+        this.viewRefresher = new ViewRefresher(refreshRoot);
     }
 
     public get<T>(key: ResolverKey<T>): T {

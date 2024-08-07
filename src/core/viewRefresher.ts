@@ -1,58 +1,56 @@
 import { removeOneFromArray } from '../utils';
 
+export type RefreshCallback = VoidFunction
+
 export class ViewRefresher {
 
-    private readonly viewsByViewModel = new Map<any, Set<React.Component>>();
-    private allViews: React.Component[] = [];
+    private readonly callbacksByViewModel = new Map<any, Set<RefreshCallback>>();
+    private allCallbacks: RefreshCallback[] = [];
 
-    constructor(rootComponent: React.Component) {
-        this.allViews.push(rootComponent);
+    constructor(refreshRoot: RefreshCallback) {
+        this.allCallbacks.push(refreshRoot);
     }
 
-    public registerView(vm: any, view: React.Component): void {
+    public registerView(vm: any, refreshView: RefreshCallback): void {
 
-        // update viewsByViewModel collection
-        let components = this.viewsByViewModel.get(vm);
-        if (!components) {
-            components = new Set();
-            this.viewsByViewModel.set(vm, components);
+        // Update callbacksByViewModel collection
+        let callbacks = this.callbacksByViewModel.get(vm);
+        if (!callbacks) {
+            callbacks = new Set();
+            this.callbacksByViewModel.set(vm, callbacks);
         }
-        components.add(view);
+        callbacks.add(refreshView);
 
-        // update allViews collections
-        this.allViews.push(view);
+        // Update allCallbacks collections
+        this.allCallbacks.push(refreshView);
     }
 
-    public unregisterView(vm: any, view: React.Component): void {
+    public unregisterView(vm: any, refreshView: RefreshCallback): void {
 
-        // update viewsByViewModel collection
-        const components = this.viewsByViewModel.get(vm);
-        components.delete(view);
-        if (!components.size)
-            this.viewsByViewModel.delete(vm);
+        // Update callbacksByViewModel collection
+        const callbacks = this.callbacksByViewModel.get(vm);
+        callbacks.delete(refreshView);
+        if (!callbacks.size) {
+            this.callbacksByViewModel.delete(vm);
+        }
 
-        // update allViews collections
-        removeOneFromArray(this.allViews, view);
+        // Update allCallbacks collections
+        removeOneFromArray(this.allCallbacks, refreshView);
     }
 
     public refreshViews(refreshAll: boolean, vm: any): void {
-        let views: React.Component[] | Set<React.Component>;
+        let callbacks: RefreshCallback[] | Set<RefreshCallback>;
 
         if (refreshAll) {
-            views = this.allViews.slice();
+            callbacks = this.allCallbacks.slice();
         } else {
-            views = this.viewsByViewModel.get(vm);
+            callbacks = this.callbacksByViewModel.get(vm);
         }
 
-        if (views) {
-            (views as React.Component[]).forEach(component => {
-                // Note that we're updating the wrapping ComponentWithViewModel
-                // component, the actual component may not be updated at all
-                // (depending on it's shouldComponentUpdate result). That's why
-                // we can use forceUpdate instead of setState and spare the
-                // implicit shouldComponentUpdate on the wrapping component.
-                component.forceUpdate();
-            });
+        if (callbacks) {
+            for (const callback of callbacks) {
+                callback();
+            }
         }
     }
 }

@@ -14,6 +14,8 @@ export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnh
 
         class ComponentWithViewModel extends React.PureComponent<OmitProps<TProps, TVm>> {
 
+            private readonly refreshView = this.forceUpdate.bind(this);
+
             private vmContext: VmContext;
 
             public componentDidMount() {
@@ -21,7 +23,7 @@ export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnh
             }
 
             public componentWillUnmount() {
-                this.vmContext?.deactivate(this);
+                this.vmContext?.deactivate(this.refreshView);
             }
 
             public render() {
@@ -29,7 +31,7 @@ export function withViewModel<TVm = {}>(VmClass: ResolverKey<TVm>): ComponentEnh
                     <Consumer>
                         {ctx => {
                             if (!this.vmContext) {
-                                this.vmContext = VmContext.registerView(this, ctx, VmClass);
+                                this.vmContext = VmContext.registerView(this.refreshView, ctx, VmClass);
                             }
                             const componentProps: any = assignWithProperties({}, this.vmContext?.vm, this.props);
                             return <Component {...componentProps} />;
