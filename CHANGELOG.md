@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.1 - 2024-08-07](https://github.com/alonrbar/react-peppermint/tree/v1.1.1)
+
+### Changed
+
+- Updated readme.
+
 ## [1.1.0 - 2024-08-07](https://github.com/alonrbar/react-peppermint/tree/v1.1.0)
 
 ### Added
