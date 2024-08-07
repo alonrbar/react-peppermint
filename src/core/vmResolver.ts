@@ -31,7 +31,7 @@ export class VmResolver implements IResolver {
         }
 
         // Already patched
-        const vmInstanceInfo = VmContext.get(vm);
+        const vmInstanceInfo = VmContext.getContext(vm);
         if (vmInstanceInfo) {
             return vm;
         }
