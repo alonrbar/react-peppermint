@@ -1,4 +1,4 @@
-import { VmClassInfo } from "../core/vmClassInfo";
+import { VmMetadata } from "../core/vmMetadata";
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
@@ -8,5 +8,5 @@ import { VmClassInfo } from "../core/vmClassInfo";
  * Mark this class as a view-model class.
  */
 export function viewModel(ctor: Function): any {
-    VmClassInfo.getOrInitInfo(ctor);
+    VmMetadata.getOrInit(ctor);
 }

@@ -22,4 +22,4 @@ export const VM_CONTEXT = Symbol('REACT-PEPPERMINT.VM_CONTEXT');
 /**
  * Stored on view-model class constructors.
  */
-export const VM_CLASS_INFO = Symbol('REACT-PEPPERMINT.VM_CLASS_INFO');
+export const VM_METADATA = Symbol('REACT-PEPPERMINT.VM_METADATA');

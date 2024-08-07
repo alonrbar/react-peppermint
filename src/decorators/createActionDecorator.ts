@@ -1,4 +1,4 @@
-import { VmClassInfo } from "../core/vmClassInfo";
+import { VmMetadata } from "../core/vmMetadata";
 import { ActionOptions } from "../options";
 
 export interface ActionDecorator {
@@ -6,7 +6,7 @@ export interface ActionDecorator {
     (target: object, propertyKey: string | symbol): void;
 }
 
-export function createActionDecorator(key: keyof VmClassInfo): ActionDecorator {
+export function createActionDecorator(key: keyof VmMetadata): ActionDecorator {
 
     return (targetOrOptions: any, propertyKeyOrNothing?: string | symbol): any => {
         if (propertyKeyOrNothing) {
@@ -21,7 +21,7 @@ export function createActionDecorator(key: keyof VmClassInfo): ActionDecorator {
     };
 
     function actionDecorator(target: object, propertyKey: string | symbol, options?: ActionOptions): void {
-        const info = VmClassInfo.getOrInitInfo(target);
-        info[key][propertyKey as any] = new ActionOptions(options);
+        const meta = VmMetadata.getOrInit(target);
+        meta[key][propertyKey as any] = new ActionOptions(options);
     }
 }

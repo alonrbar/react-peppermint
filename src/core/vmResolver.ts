@@ -1,7 +1,7 @@
 import { createMethodInvokeArgs, IResolver, Method, MethodInvokeEvent, ResolverKey } from '../types';
 import { defineProperties, DescriptorType, getMethods, isPromise, tryInvoke } from '../utils';
 import { ViewRefresher } from './viewRefresher';
-import { VmClassInfo } from './vmClassInfo';
+import { VmMetadata } from './vmMetadata';
 import { VmContext } from './vmContext';
 
 /**
@@ -25,7 +25,7 @@ export class VmResolver implements IResolver {
         const instance = this.internalResolver.get(key);
 
         // if it's a vm class
-        const vmClassInfo = VmClassInfo.getInfo(instance);
+        const vmClassInfo = VmMetadata.get(instance);
         if (vmClassInfo) {
 
             // and the current instance is not already patched
@@ -40,7 +40,7 @@ export class VmResolver implements IResolver {
         return instance;
     }
 
-    private patchViewModel(vm: any, vmClassInfo: VmClassInfo): void {
+    private patchViewModel(vm: any, vmClassInfo: VmMetadata): void {
 
         // set vm symbols
         VmContext.initContext(vm, vmClassInfo, this.viewRefresher);
@@ -62,7 +62,7 @@ export class VmResolver implements IResolver {
         }
     }
 
-    private patchMethod(vm: any, vmClassInfo: VmClassInfo, methodName: string): void {
+    private patchMethod(vm: any, vmClassInfo: VmMetadata, methodName: string): void {
 
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
