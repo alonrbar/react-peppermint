@@ -8,12 +8,12 @@ export interface IResolver {
 
 export interface MethodInvokeEvent {
     vm: any;
-    methodName: string | symbol;
+    methodName: string;
     methodArgs: IArguments;
     isBroadcast: boolean;
 }
 
-export function createMethodInvokeArgs(vm: any, methodName: string | symbol, methodArgs: IArguments, isBroadcast: boolean): MethodInvokeEvent {
+export function createMethodInvokeArgs(vm: any, methodName: string, methodArgs: IArguments, isBroadcast: boolean): MethodInvokeEvent {
     return {
         vm,
         methodName,
