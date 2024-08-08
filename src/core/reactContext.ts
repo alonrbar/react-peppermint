@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { VmContainer } from './vmContainer';
+import { ResolverKey } from '../types';
 
 //
 // This is the internal React context provider. The provider that is exposed to
@@ -7,7 +7,7 @@ import { VmContainer } from './vmContainer';
 //
 
 export interface ReactContext {
-    vmContainer: VmContainer;
+    resolve<T>(key: ResolverKey<T>): T
 }
 
 export const ReactPeppermintContext = React.createContext<ReactContext>(undefined);
