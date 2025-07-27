@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.4 - 2025-07-27](https://github.com/alonrbar/react-peppermint/tree/v1.1.4)
+
+### Changed
+
+- Change dist files extensions (cjs, mjs).
+
 ## [1.1.3 - 2024-08-08](https://github.com/alonrbar/react-peppermint/tree/v1.1.3)
 
 ### Fixed

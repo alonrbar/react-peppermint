@@ -1,6 +1,6 @@
 {
   "name": "react-peppermint",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Fresh state management for React 🌿",
   "keywords": [
     "react",
@@ -24,9 +24,19 @@
     "url": "https://github.com/alonrbar/react-peppermint/issues"
   },
   "type": "module",
-  "main": "dist/cjs/react-peppermint.js",
-  "module": "dist/es/react-peppermint.js",
+  "main": "dist/cjs/react-peppermint.cjs",
+  "module": "dist/es/react-peppermint.mjs",
   "typings": "dist/types/index.d.ts",
+  "exports": {
+    "require": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/cjs/react-peppermint.cjs"
+    },
+    "import": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/es/react-peppermint.mjs"
+    }
+  },
   "files": [
     "dist",
     "src"

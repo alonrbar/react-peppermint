@@ -8,11 +8,11 @@ export default {
     external: [/node_modules/],
     output: [
         {
-            file: 'dist/cjs/react-peppermint.js',
+            file: 'dist/cjs/react-peppermint.cjs',
             format: 'cjs'
         },
         {
-            file: 'dist/es/react-peppermint.js',
+            file: 'dist/es/react-peppermint.mjs',
             format: 'es'
         }
     ],
